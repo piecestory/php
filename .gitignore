@@ -28,3 +28,4 @@ Thumbs.db
 
 # Local dev environment (database data, PHP extension overrides)
 /.dev
+/tools/brand/node_modules

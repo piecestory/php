@@ -1,0 +1,16 @@
+{
+  "name": "piece-and-story-brand",
+  "private": true,
+  "type": "module",
+  "description": "Generates the PIECE & STORY logo system from outlined OFL typefaces",
+  "scripts": {
+    "export": "node export.mjs ../.."
+  },
+  "dependencies": {
+    "@expo-google-fonts/amiri": "*",
+    "@expo-google-fonts/cinzel": "*",
+    "@expo-google-fonts/cormorant-garamond": "*",
+    "@resvg/resvg-js": "*",
+    "harfbuzzjs": "*"
+  }
+}
