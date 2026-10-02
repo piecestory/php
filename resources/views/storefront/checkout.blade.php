@@ -56,6 +56,9 @@
                                         {{ $method->translate('name') }}
                                         <span class="numerals text-sm text-ink-soft">{{ bccomp((string) $method->rate, '0', 2) === 0 ? __('checkout.free') : Money::amount((string) $method->rate).' '.Money::currency() }}</span>
                                     </span>
+                                    @if ($method->free_shipping_threshold !== null && bccomp((string) $method->rate, '0', 2) > 0)
+                                        <span class="mt-1 block text-sm text-success">{{ __('checkout.free_over', ['amount' => Money::amount((string) $method->free_shipping_threshold).' '.Money::currency()]) }}</span>
+                                    @endif
                                     @if ($method->translate('description'))
                                         <span class="mt-1 block text-sm text-ink-soft">{{ $method->translate('description') }}</span>
                                     @endif

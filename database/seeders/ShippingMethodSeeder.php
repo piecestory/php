@@ -20,13 +20,18 @@ class ShippingMethodSeeder extends Seeder
             'sort_order' => 2,
         ]);
 
-        // Inactive until the owner sets the delivery pricing (open decision before Phase 9).
-        ShippingMethod::query()->firstOrCreate(['code' => ShippingMethod::DELIVERY], [
+        // Owner's decision: free delivery for orders over 150 SAR. Stays inactive until the
+        // delivery price itself is set (from the admin panel).
+        $delivery = ShippingMethod::query()->firstOrCreate(['code' => ShippingMethod::DELIVERY], [
             'name_ar' => 'التوصيل داخل المملكة',
             'name_en' => 'Delivery within Saudi Arabia',
             'rate' => 0,
             'is_active' => false,
             'sort_order' => 1,
         ]);
+
+        if ($delivery->free_shipping_threshold === null) {
+            $delivery->update(['free_shipping_threshold' => 150]);
+        }
     }
 }

@@ -11,9 +11,9 @@ use App\Domain\Payments\Enums\PaymentMethod;
 use App\Domain\Payments\PaymentGateways;
 use App\Domain\Shipping\Models\ShippingMethod;
 use App\Domain\Store\Models\Branch;
+use App\Http\Requests\Support\NationalAddress;
 use App\Rules\SaudiMobileNumber;
 use App\Support\Phone\SaudiMobile;
-use App\Support\Text\Digits;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
@@ -25,24 +25,11 @@ use LogicException;
  */
 class CheckoutRequest extends FormRequest
 {
-    private const array ADDRESS_DIGIT_FIELDS = ['building_number', 'postal_code', 'additional_number'];
-
     private ?ShippingMethod $chosenShippingMethod = null;
 
     protected function prepareForValidation(): void
     {
-        $address = (array) $this->input('address', []);
-
-        foreach (self::ADDRESS_DIGIT_FIELDS as $field) {
-            if (is_string($address[$field] ?? null)) {
-                $address[$field] = trim(Digits::toLatin($address[$field]));
-            }
-        }
-        if (is_string($address['short_address'] ?? null)) {
-            $address['short_address'] = mb_strtoupper(trim(Digits::toLatin($address['short_address'])));
-        }
-
-        $this->merge(['address' => $address]);
+        $this->merge(['address' => NationalAddress::normalize((array) $this->input('address', []))]);
     }
 
     /** @return array<string, mixed> */
@@ -69,15 +56,7 @@ class CheckoutRequest extends FormRequest
         if ($method?->requires_pickup_branch === true) {
             $rules['pickup_branch'] = ['required', 'integer', Rule::exists('branches', 'id')->where('is_active', true)->where('is_pickup_point', true)];
         } elseif ($method !== null) {
-            $rules += [
-                'address.city' => ['required', 'string', 'max:100'],
-                'address.district' => ['required', 'string', 'max:100'],
-                'address.street' => ['required', 'string', 'max:150'],
-                'address.building_number' => ['required', 'digits:4'],
-                'address.postal_code' => ['required', 'digits:5'],
-                'address.additional_number' => ['nullable', 'digits:4'],
-                'address.short_address' => ['nullable', 'regex:/^[A-Z]{4}\d{4}$/'],
-            ];
+            $rules += NationalAddress::rules('address.');
         }
 
         return $rules;

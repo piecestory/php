@@ -151,8 +151,8 @@ it('validates the form according to the choices made', function (array $input, s
 ]);
 
 it('requires the national address for delivery once the owner enables it', function (): void {
-    ShippingMethod::query()->where('code', ShippingMethod::DELIVERY)->update(['is_active' => true, 'rate' => 150]);
-    $product = Product::factory()->published()->create(['price' => 1000]);
+    ShippingMethod::query()->where('code', ShippingMethod::DELIVERY)->update(['is_active' => true, 'rate' => 35]);
+    $product = Product::factory()->published()->create(['price' => 120]); // under the 150 SAR free-delivery threshold
     $delivery = ShippingMethod::query()->where('code', ShippingMethod::DELIVERY)->value('id');
     $token = checkoutCart($product);
 
@@ -166,10 +166,25 @@ it('requires the national address for delivery once the owner enables it', funct
     ]))->assertRedirectContains('/payments/sandbox/');
 
     $order = Order::query()->sole();
-    expect($order->shipping_total)->toBe('150.00')
-        ->and($order->grand_total)->toBe('1150.00')
+    expect($order->shipping_total)->toBe('35.00')
+        ->and($order->grand_total)->toBe('155.00')
         ->and($order->ship_building_number)->toBe('2929') // Arabic digits normalised
         ->and($order->pickup_branch_id)->toBeNull();
+});
+
+it('delivers orders over 150 SAR for free', function (): void {
+    ShippingMethod::query()->where('code', ShippingMethod::DELIVERY)->update(['is_active' => true, 'rate' => 35]);
+    $product = Product::factory()->published()->create(['price' => 1000]);
+
+    $token = checkoutCart($product);
+    $this->withCookie(CurrentCart::COOKIE, $token)->get('/checkout')->assertSee('مجاني للطلبات فوق 150 ر.س');
+
+    $this->withCookie(CurrentCart::COOKIE, $token)->post('/checkout', checkoutForm([
+        'shipping_method' => ShippingMethod::query()->where('code', ShippingMethod::DELIVERY)->value('id'),
+        'address' => ['city' => 'جدة', 'district' => 'الروضة', 'street' => 'شارع الأمير سلطان', 'building_number' => '2929', 'postal_code' => '23435'],
+    ]));
+
+    expect(Order::query()->sole()->shipping_total)->toBe('0.00')->and(Order::query()->sole()->grand_total)->toBe('1000.00');
 });
 
 it('refuses a piece someone else bought meanwhile, without creating an order', function (): void {

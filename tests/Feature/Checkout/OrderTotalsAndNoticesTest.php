@@ -12,16 +12,25 @@ use App\Mail\StoreOrderAlertMail;
 use App\Support\Money\Vat;
 use Database\Seeders\SettingsSeeder;
 
-it('adds the delivery fee unless the order reaches the free-delivery threshold', function (string $subtotal, string $shipping, string $total): void {
-    $method = new ShippingMethod(['rate' => '150', 'free_shipping_threshold' => '5000']);
+it('delivers free only when the order is over the free-delivery threshold', function (string $subtotal, string $shipping, string $total): void {
+    $method = new ShippingMethod(['rate' => '35', 'free_shipping_threshold' => '150']);
 
     $totals = OrderTotals::calculate($subtotal, $method);
 
     expect($totals->shipping)->toBe($shipping)->and($totals->grandTotal)->toBe($total);
 })->with([
-    'below threshold' => ['4999.00', '150.00', '5149.00'],
-    'at threshold' => ['5000.00', '0.00', '5000.00'],
+    'below threshold' => ['120.00', '35.00', '155.00'],
+    'exactly 150 is not over it' => ['150.00', '35.00', '185.00'],
+    'over threshold' => ['150.01', '0.00', '150.01'],
 ]);
+
+it('seeds delivery with free shipping for orders over 150 SAR, inactive until it is priced', function (): void {
+    $this->seed(Database\Seeders\ShippingMethodSeeder::class);
+
+    $delivery = ShippingMethod::query()->where('code', ShippingMethod::DELIVERY)->sole();
+
+    expect($delivery->free_shipping_threshold)->toBe('150.00')->and($delivery->is_active)->toBeFalse();
+});
 
 it('extracts VAT from VAT-inclusive totals and rounds deposits to the halala', function (): void {
     expect(Vat::included('1150.00'))->toBe('150.00')

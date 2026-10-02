@@ -37,7 +37,8 @@ final readonly class OrderTotals
         }
 
         $threshold = $method->free_shipping_threshold;
-        if ($threshold !== null && bccomp($subtotal, (string) $threshold, 2) >= 0) {
+        // Owner's rule: delivery is free when the order is over the threshold (strictly greater).
+        if ($threshold !== null && bccomp($subtotal, (string) $threshold, 2) > 0) {
             return '0.00';
         }
 

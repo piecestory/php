@@ -2,6 +2,9 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Account\AccountController;
+use App\Http\Controllers\Account\AddressController;
+use App\Http\Controllers\Account\ProfileController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\MobileLoginController;
 use App\Http\Controllers\Auth\PasswordResetController;
@@ -91,3 +94,21 @@ Route::middleware('guest')->group(function (): void {
 });
 
 Route::post('/logout', [LoginController::class, 'destroy'])->middleware('auth')->name('logout');
+
+// My account. Records are always read through the signed-in customer, so ids of others are 404s.
+Route::middleware('auth')->prefix('account')->name('account')->group(function (): void {
+    Route::get('/', [AccountController::class, 'overview'])->name('');
+    Route::get('/orders', [AccountController::class, 'orders'])->name('.orders');
+
+    Route::get('/addresses', [AddressController::class, 'index'])->name('.addresses');
+    Route::get('/addresses/new', [AddressController::class, 'create'])->name('.addresses.create');
+    Route::post('/addresses', [AddressController::class, 'store'])->name('.addresses.store');
+    Route::get('/addresses/{address}/edit', [AddressController::class, 'edit'])->whereNumber('address')->name('.addresses.edit');
+    Route::post('/addresses/{address}', [AddressController::class, 'update'])->whereNumber('address')->name('.addresses.update');
+    Route::post('/addresses/{address}/default', [AddressController::class, 'makeDefault'])->whereNumber('address')->name('.addresses.default');
+    Route::post('/addresses/{address}/delete', [AddressController::class, 'destroy'])->whereNumber('address')->name('.addresses.destroy');
+
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('.profile');
+    Route::post('/profile', [ProfileController::class, 'update'])->name('.profile.update');
+    Route::post('/password', [ProfileController::class, 'updatePassword'])->middleware('throttle:auth-forms')->name('.password.update');
+});

@@ -273,4 +273,12 @@ document.addEventListener(
     true,
 );
 
+// Horizontally scrolling menus (account sections on phones): keep the current page's tab in view.
+for (const nav of document.querySelectorAll('[data-scroll-active]')) {
+    const current = nav.querySelector('[aria-current="page"]');
+    if (current && nav.scrollWidth > nav.clientWidth) {
+        nav.scrollLeft += current.getBoundingClientRect().left - nav.getBoundingClientRect().left - 16;
+    }
+}
+
 Livewire.start();

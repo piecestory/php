@@ -18,6 +18,7 @@ return [
     'address_title' => 'National address',
     'address_hint' => 'You can find it in the Subul app or on the National Address website.',
     'free' => 'Free',
+    'free_over' => 'Free for orders over :amount',
     'type' => [
         'purchase' => 'Buy now',
         'purchase_text' => 'Pay the full amount now and we prepare your piece straight away.',

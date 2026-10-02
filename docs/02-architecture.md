@@ -121,6 +121,13 @@ Renditions are width-bound and never upscaled; `RecordImageDimensions` stores ea
 - Abuse guard: at most `reservation.max_open_per_phone` (2) open reservations per mobile number.
 - Customers are told by SMS (always) and email (when given) when an order is confirmed, a piece is reserved, a reminder is due and a reservation is cancelled; the store mailbox (`store.email`) gets new confirmed orders and reservations. All messages are queued and sent after the transaction commits.
 
+### ADR-026 — Customer account
+- `/account` (behind `auth`): overview (orders awaiting payment first, recent orders, default address, wishlist count), order history (paginated; each order opens the existing order page, which needs no key for its owner), address book, profile and password. The wishlist keeps its own page and is linked from the account menu.
+- Isolation: every record is read through the signed-in customer (`$user->orders()`, `$user->addresses()->findOrFail($id)`), never by a bare id, so another customer's address or order is a 404. Covered by tests.
+- Address book: Saudi National Address, up to 10 addresses, exactly one default (first saved, or chosen); deleting the default promotes the most recent remaining one. The default prefills checkout. Address rules and digit normalisation are shared with checkout (`NationalAddress`).
+- Profile: changing the email or mobile (sign-in identifiers) needs the current password when the account has one; a changed identifier loses its verified status. Accounts with a password keep an email (it is how they sign in). Customers who signed up with an SMS code can set a first password. Changing the password rotates the remember-me token and ends the customer's other sessions.
+- Message language (`users.locale`) is chosen in the profile; emails and SMS follow it.
+
 ## Directory map
 
 ```
