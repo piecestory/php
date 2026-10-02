@@ -2,6 +2,16 @@
   "version": "0.0.1",
   "configurations": [
     {
+      "name": "app",
+      "runtimeExecutable": "php",
+      "runtimeArgs": [
+        "-d", "extension=pdo_mysql", "-d", "extension=fileinfo", "-d", "extension=gd",
+        "-d", "extension=intl", "-d", "extension=zip", "-d", "extension=exif", "-d", "extension=sodium",
+        "-S", "127.0.0.1:8000", "-t", "public", "tools/dev-server.php"
+      ],
+      "port": 8000
+    },
+    {
       "name": "logo-lab",
       "runtimeExecutable": "php",
       "runtimeArgs": ["-S", "127.0.0.1:8765", "-t", ".dev/logo-lab"],
