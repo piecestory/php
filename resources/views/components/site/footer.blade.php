@@ -19,7 +19,7 @@
                 <h2 id="footer-shop" class="mb-5 font-sans text-sm font-semibold tracking-wide text-gold">{{ __('site.footer.shop') }}</h2>
                 <ul class="space-y-3 text-sm">
                     @foreach ($categories as $category)
-                        <li><a href="{{ localized_route('category', $category->translate('slug')) }}" class="hover:text-gold">{{ $category->translate('name') }}</a></li>
+                        <li><a href="{{ localized_route('category', $category) }}" class="hover:text-gold">{{ $category->translate('name') }}</a></li>
                     @endforeach
                 </ul>
             </nav>

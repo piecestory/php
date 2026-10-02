@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace App\Domain\Catalog\Models;
 
+use App\Domain\Shared\Concerns\HasWebpRenditions;
+use App\Support\Localization\HasLocalizedSlug;
 use App\Support\Localization\HasTranslations;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Spatie\MediaLibrary\HasMedia;
-use Spatie\MediaLibrary\InteractsWithMedia;
 
 #[Fillable([
     'name_ar', 'name_en', 'slug_ar', 'slug_en', 'description_ar', 'description_en',
@@ -17,9 +18,12 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 ])]
 class Collection extends Model implements HasMedia
 {
-    use HasTranslations, InteractsWithMedia;
+    use HasLocalizedSlug, HasTranslations, HasWebpRenditions;
 
     public const string MEDIA_COVER = 'cover';
+
+    /** WebP renditions (name => width), smallest first. */
+    public const array IMAGE_SIZES = ['w800' => 800, 'w1600' => 1600];
 
     protected function casts(): array
     {

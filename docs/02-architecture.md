@@ -79,6 +79,18 @@ Own thin controllers over Laravel primitives (no Fortify): email-or-mobile + pas
 ### ADR-017 — CSP-ready front end
 Livewire/Alpine use the CSP build bundled through Vite; interactive behaviour is registered as named `Alpine.data` components in `resources/js/app.js`. No inline scripts or handlers, so a strict Content-Security-Policy can be enabled in Phase 15.
 
+### ADR-018 — Localized slugs
+Catalog models use `HasLocalizedSlug`: route binding and URL generation use `slug_ar` or `slug_en` for the active language. `SetLocale` runs before `SubstituteBindings` (middleware priority) so `/en/store/lighting` resolves against `slug_en`. `LocalizedRoute::url()` switches the language while generating, so cross-language links (hreflang, emails) carry the right slug. A slug in the wrong language is a 404, never a duplicate page.
+
+### ADR-019 — Images
+`HasWebpRenditions` (wraps the media library) creates WebP renditions per model (`IMAGE_SIZES`) in the background queue; views get `src`/`srcset` through `ResponsiveImage`, which serves the original until renditions exist. Production needs `php artisan storage:link` and the cron-driven queue for renditions to appear.
+
+### ADR-020 — Catalog queries
+`BrowseProducts` builds every listing (store, category, collection, search) from a `CatalogFilters` value object. Price filters and sorting use the price actually charged (active sale price), mirrored in SQL and in `Product::isOnSale()`. Search: normalized words with Arabic prefixes stripped, InnoDB boolean FULLTEXT with prefix matching; words shorter than 3 letters fall back to `LIKE`. Invalid query-string values are dropped, not shown as errors, so shared links never break.
+
+### ADR-021 — Sample catalogue
+`DemoCatalogSeeder` (never part of `DatabaseSeeder`, refuses to run in production) creates 24 pieces with `DEMO-` SKUs and sample descriptions for staging. `php artisan catalog:remove-demo` deletes them and their images before launch.
+
 ## Directory map
 
 ```

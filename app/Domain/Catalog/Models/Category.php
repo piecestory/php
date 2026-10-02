@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Domain\Catalog\Models;
 
+use App\Domain\Shared\Concerns\HasWebpRenditions;
+use App\Support\Localization\HasLocalizedSlug;
 use App\Support\Localization\HasTranslations;
 use Database\Factories\CategoryFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -14,7 +16,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
-use Spatie\MediaLibrary\InteractsWithMedia;
 
 #[Fillable([
     'parent_id', 'name_ar', 'name_en', 'slug_ar', 'slug_en', 'description_ar', 'description_en',
@@ -24,9 +25,12 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 class Category extends Model implements HasMedia
 {
     /** @use HasFactory<CategoryFactory> */
-    use HasFactory, HasTranslations, InteractsWithMedia, SoftDeletes;
+    use HasFactory, HasLocalizedSlug, HasTranslations, HasWebpRenditions, SoftDeletes;
 
     public const string MEDIA_IMAGE = 'image';
+
+    /** WebP renditions (name => width), smallest first. */
+    public const array IMAGE_SIZES = ['tile' => 240, 'w480' => 480];
 
     protected function casts(): array
     {

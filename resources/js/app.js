@@ -14,6 +14,27 @@ Alpine.data('disclosure', () => ({
     },
 }));
 
+// Product listing filters: a slide-in panel on mobile; on desktop every change applies at once.
+Alpine.data('catalogFilters', () => ({
+    open: false,
+    toggle() {
+        this.open = !this.open;
+        document.documentElement.classList.toggle('overflow-hidden', this.open);
+    },
+    close() {
+        this.open = false;
+        document.documentElement.classList.remove('overflow-hidden');
+    },
+    changed(event) {
+        if (window.matchMedia('(min-width: 1024px)').matches) {
+            event.target.form.requestSubmit();
+        }
+    },
+    submitNow(event) {
+        event.target.form.requestSubmit();
+    },
+}));
+
 // Hero slider: arrows, dots and swipe; no autoplay (calmer, and accessible by default).
 Alpine.data('slider', () => ({
     index: 0,

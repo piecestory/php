@@ -37,7 +37,23 @@
             </ul>
         </nav>
 
+        @if (\App\Support\Localization\LocalizedRoute::has('search'))
+            <form method="GET" action="{{ localized_route('search') }}" role="search" class="relative hidden w-56 xl:block xl:w-64">
+                <label for="header-search" class="sr-only">{{ __('catalog.search.label') }}</label>
+                <input id="header-search" type="search" name="q" value="{{ request()->routeIs('search', 'en.search') ? request('q') : '' }}"
+                    placeholder="{{ __('catalog.search.placeholder') }}" maxlength="100" class="form-control h-11 bg-ivory pe-11">
+                <button type="submit" class="absolute inset-y-0 end-0 grid w-11 place-items-center text-ink-soft hover:text-bronze">
+                    <x-ui.icon name="search" class="size-5" /><span class="sr-only">{{ __('catalog.search.submit') }}</span>
+                </button>
+            </form>
+        @endif
+
         <div class="flex items-center gap-1">
+            @if (\App\Support\Localization\LocalizedRoute::has('search'))
+                <a href="{{ localized_route('search') }}" class="grid size-11 place-items-center rounded-xs text-ink hover:bg-linen hover:text-bronze xl:hidden">
+                    <x-ui.icon name="search" class="size-[1.35rem]" /><span class="sr-only">{{ __('catalog.search.label') }}</span>
+                </a>
+            @endif
             @if ($accountUrl)
                 <a href="{{ $accountUrl }}" class="grid size-11 place-items-center rounded-xs text-ink transition-colors hover:bg-linen hover:text-bronze">
                     <x-ui.icon name="user" class="size-[1.35rem]" />

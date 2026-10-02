@@ -34,4 +34,32 @@ final class ArabicNormalizer
 
         return trim($text);
     }
+
+    /**
+     * Text stored in the search index: the normalized words plus each word without its
+     * Arabic definite article / attached prefix, so "ساعة" finds "الساعة" and "بالذهب" finds "ذهب".
+     */
+    public static function forIndex(?string $text): string
+    {
+        $words = array_filter(explode(' ', self::normalize($text)));
+        $extra = array_filter(array_map(self::stripPrefix(...), $words), fn (string $w) => ! in_array($w, $words, true));
+
+        return implode(' ', array_unique([...$words, ...$extra]));
+    }
+
+    /** @return list<string> normalized search words without prefixes, de-duplicated */
+    public static function queryTerms(?string $query): array
+    {
+        $words = array_filter(explode(' ', self::normalize($query)));
+
+        return array_values(array_unique(array_map(self::stripPrefix(...), $words)));
+    }
+
+    private static function stripPrefix(string $word): string
+    {
+        $stripped = (string) preg_replace('/^(وال|بال|كال|فال|لل|ال)/u', '', $word);
+
+        // Keep short words intact ("الف" must not become "ف").
+        return mb_strlen($stripped) >= 3 ? $stripped : $word;
+    }
 }

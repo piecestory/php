@@ -20,12 +20,18 @@
             @foreach ($slides as $slide)
                 <div data-slide="{{ $loop->index }}" x-show="isActive" @if (! $loop->first) x-cloak @endif
                     class="relative flex min-h-[30rem] items-center lg:min-h-[34rem]" role="group" aria-roledescription="slide">
+                    @php
+                        $desktop = $slide->responsiveImage(HeroSlide::MEDIA_DESKTOP);
+                        $mobile = $slide->responsiveImage(HeroSlide::MEDIA_MOBILE);
+                    @endphp
                     <picture class="absolute inset-0 -z-10">
-                        @if ($mobile = $slide->getFirstMediaUrl(HeroSlide::MEDIA_MOBILE))
-                            <source media="(max-width: 767px)" srcset="{{ $mobile }}">
+                        @if ($mobile)
+                            <source media="(max-width: 767px)" srcset="{{ $mobile['srcset'] ?? $mobile['src'] }}" sizes="100vw">
                         @endif
-                        <img src="{{ $slide->getFirstMediaUrl(HeroSlide::MEDIA_DESKTOP) ?: asset('images/placeholder.svg') }}"
-                            alt="" class="size-full object-cover" @if ($loop->first) fetchpriority="high" @else loading="lazy" @endif
+                        <img src="{{ $desktop['src'] ?? asset('images/placeholder.svg') }}"
+                            @if ($desktop['srcset'] ?? null) srcset="{{ $desktop['srcset'] }}" sizes="100vw" @endif
+                            alt="{{ $desktop['alt'] ?? '' }}" class="size-full object-cover object-top"
+                            @if ($loop->first) fetchpriority="high" @else loading="lazy" @endif
                             data-fallback="{{ asset('images/placeholder.svg') }}">
                     </picture>
                     <div class="absolute inset-0 -z-10 bg-linear-to-l from-night/85 via-night/50 to-transparent ltr:bg-linear-to-r"></div>
@@ -37,7 +43,7 @@
                                 <p class="text-lg leading-relaxed text-ivory/85">{{ $slide->translate('subtitle') }}</p>
                             @endif
                             @if ($slide->cta_url && $slide->translate('cta_label'))
-                                <x-ui.button :href="$slide->cta_url" size="lg" icon="arrow-right">{{ $slide->translate('cta_label') }}</x-ui.button>
+                                <x-ui.button :href="LocalizedRoute::path($slide->cta_url)" size="lg" icon="arrow-right">{{ $slide->translate('cta_label') }}</x-ui.button>
                             @endif
                         </div>
                     </div>
@@ -91,8 +97,8 @@
                     @foreach ($categories as $category)
                         <li class="w-[15rem] shrink-0 snap-start lg:w-auto">
                             <x-category-tile :name="$category->translate('name')"
-                                :href="$categoryRoute ? localized_route('category', $category->translate('slug')) : null"
-                                :image="$category->getFirstMediaUrl(Category::MEDIA_IMAGE) ?: null" class="h-full" />
+                                :href="$categoryRoute ? localized_route('category', $category) : null"
+                                :image="$category->responsiveImage(Category::MEDIA_IMAGE)['src'] ?? null" class="h-full" />
                         </li>
                     @endforeach
                 </ul>
@@ -109,7 +115,7 @@
                     @php($card = ProductCard::from($product))
                     <li>
                         <x-product-card :name="$card['name']" :href="$card['href']" :price="$card['price']"
-                            :compare-at="$card['compareAt']" :image="$card['image']" :badges="$card['badges']"
+                            :compare-at="$card['compareAt']" :image="$card['image']" :srcset="$card['srcset']" :badges="$card['badges']"
                             :purchasable="$card['purchasable']" />
                     </li>
                 @endforeach

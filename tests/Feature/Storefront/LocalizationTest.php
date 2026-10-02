@@ -24,5 +24,6 @@ it('only lists pages that exist in the navigation', function (): void {
     $this->get('/')
         ->assertSee(url('/faq'))
         ->assertSee(url('/track-order'))
-        ->assertDontSee('/store"', escape: false);
+        ->assertSee(url('/store'))
+        ->assertDontSee(url('/auctions'));
 });

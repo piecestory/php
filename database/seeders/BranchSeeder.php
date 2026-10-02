@@ -14,7 +14,9 @@ class BranchSeeder extends Seeder
     public function run(): void
     {
         $branches = [
-            ['name_en' => 'Al-Bawadi Showroom', 'name_ar' => 'معرض البوادي', 'district' => 'البوادي', 'type' => BranchType::Showroom, 'is_pickup_point' => true],
+            // Main showroom; coordinates provided by the owner.
+            ['name_en' => 'Al-Bawadi Showroom', 'name_ar' => 'معرض البوادي', 'district' => 'البوادي', 'type' => BranchType::Showroom, 'is_pickup_point' => true,
+                'map_url' => 'https://www.google.com/maps/search/?api=1&query=21.587040,39.175657'],
             ['name_en' => 'Al-Harazat Showroom', 'name_ar' => 'معرض الحرازات', 'district' => 'الحرازات', 'type' => BranchType::Showroom, 'is_pickup_point' => true],
             ['name_en' => 'Al-Khumrah Warehouse', 'name_ar' => 'مستودع الخمرة', 'district' => 'الخمرة', 'type' => BranchType::Warehouse, 'is_pickup_point' => false],
         ];

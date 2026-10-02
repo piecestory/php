@@ -12,18 +12,20 @@ use App\Support\Localization\LocalizedRoute;
 final class ProductCard
 {
     /**
-     * @return array{name: string, href: ?string, price: string, compareAt: ?string, image: ?string, badges: array<string, string>, purchasable: bool}
+     * @return array{name: string, href: ?string, price: string, compareAt: ?string, image: ?string, srcset: ?string, badges: array<string, string>, purchasable: bool}
      */
     public static function from(Product $product): array
     {
         $onSale = $product->isOnSale();
+        $image = $product->responsiveImage(Product::MEDIA_GALLERY);
 
         return [
             'name' => (string) $product->translate('name'),
-            'href' => LocalizedRoute::has('product') ? localized_route('product', $product->translate('slug')) : null,
+            'href' => LocalizedRoute::has('product') ? localized_route('product', $product) : null,
             'price' => $product->effectivePrice(),
             'compareAt' => $onSale ? (string) $product->price : null,
-            'image' => $product->getFirstMediaUrl(Product::MEDIA_GALLERY) ?: null,
+            'image' => $image['src'] ?? null,
+            'srcset' => $image['srcset'] ?? null,
             'badges' => self::badges($product, $onSale),
             'purchasable' => $product->availability === ProductAvailability::Available && $product->stock_quantity > 0,
         ];

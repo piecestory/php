@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\MobileLoginController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Storefront\CatalogController;
 use App\Http\Controllers\Storefront\FaqController;
 use App\Http\Controllers\Storefront\HomeController;
 use App\Http\Controllers\Storefront\TrackOrderController;
@@ -18,6 +19,14 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
 Route::get('/faq', FaqController::class)->name('faq');
+
+Route::controller(CatalogController::class)->group(function (): void {
+    Route::get('/store', 'store')->name('store');
+    Route::get('/store/{category}', 'category')->name('category');
+    Route::get('/search', 'search')->name('search');
+    Route::get('/collections', 'collections')->name('collections');
+    Route::get('/collections/{collection}', 'collection')->name('collection');
+});
 
 Route::get('/track-order', [TrackOrderController::class, 'show'])->name('track-order');
 Route::post('/track-order', [TrackOrderController::class, 'lookup'])

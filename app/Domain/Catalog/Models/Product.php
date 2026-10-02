@@ -8,7 +8,9 @@ use App\Domain\Catalog\Enums\ProductAvailability;
 use App\Domain\Catalog\Enums\ProductCondition;
 use App\Domain\Inventory\Models\InventoryMovement;
 use App\Domain\Shared\Concerns\HasPublication;
+use App\Domain\Shared\Concerns\HasWebpRenditions;
 use App\Domain\Shared\Enums\PublicationStatus;
+use App\Support\Localization\HasLocalizedSlug;
 use App\Support\Localization\HasTranslations;
 use App\Support\Search\ArabicNormalizer;
 use Carbon\CarbonInterface;
@@ -23,7 +25,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
-use Spatie\MediaLibrary\InteractsWithMedia;
 
 #[Fillable([
     'category_id', 'origin_id', 'era_id', 'sku', 'name_ar', 'name_en', 'slug_ar', 'slug_en',
@@ -37,7 +38,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 class Product extends Model implements HasMedia
 {
     /** @use HasFactory<ProductFactory> */
-    use HasFactory, HasPublication, HasTranslations, InteractsWithMedia, SoftDeletes;
+    use HasFactory, HasLocalizedSlug, HasPublication, HasTranslations, HasWebpRenditions, SoftDeletes;
 
     /** Ordered gallery; the first image is the primary image. */
     public const string MEDIA_GALLERY = 'gallery';
@@ -69,16 +70,20 @@ class Product extends Model implements HasMedia
     {
         static::saving(function (self $product): void {
             if ($product->isDirty(self::SEARCHABLE) || $product->search_text === null) {
-                $product->search_text = ArabicNormalizer::normalize(
+                $product->search_text = ArabicNormalizer::forIndex(
                     implode(' ', array_map(fn (string $field) => (string) $product->getAttribute($field), self::SEARCHABLE)),
                 );
             }
         });
     }
 
+    /** WebP renditions (name => width) used for srcset; smallest first. */
+    public const array IMAGE_SIZES = ['thumb' => 400, 'card' => 800, 'large' => 1600];
+
     public function registerMediaCollections(): void
     {
-        $this->addMediaCollection(self::MEDIA_GALLERY);
+        $this->addMediaCollection(self::MEDIA_GALLERY)
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp']);
     }
 
     public function isOnSale(?CarbonInterface $at = null): bool

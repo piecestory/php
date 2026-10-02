@@ -1,4 +1,4 @@
-@props(['title' => null, 'description' => null])
+@props(['title' => null, 'description' => null, 'noindex' => false])
 
 @php
     use App\Support\Localization\Locales;
@@ -17,6 +17,9 @@
     <title>{{ $pageTitle }}</title>
     @if ($description)
         <meta name="description" content="{{ $description }}">
+    @endif
+    @if ($noindex)
+        <meta name="robots" content="noindex, follow">
     @endif
     @if ($named)
         <link rel="canonical" href="{{ url()->current() }}">

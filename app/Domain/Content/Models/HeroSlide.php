@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Domain\Content\Models;
 
+use App\Domain\Shared\Concerns\HasWebpRenditions;
 use App\Support\Localization\HasTranslations;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\MediaLibrary\HasMedia;
-use Spatie\MediaLibrary\InteractsWithMedia;
 
 #[Fillable([
     'title_ar', 'title_en', 'subtitle_ar', 'subtitle_en', 'cta_label_ar', 'cta_label_en', 'cta_url',
@@ -16,12 +16,15 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 ])]
 class HeroSlide extends Model implements HasMedia
 {
-    use HasTranslations, InteractsWithMedia;
+    use HasTranslations, HasWebpRenditions;
 
     public const string MEDIA_DESKTOP = 'desktop';
 
     /** Optional portrait crop; falls back to the desktop image on phones. */
     public const string MEDIA_MOBILE = 'mobile';
+
+    /** WebP renditions (name => width), smallest first. */
+    public const array IMAGE_SIZES = ['w960' => 960, 'w1920' => 1920];
 
     protected function casts(): array
     {
