@@ -1,0 +1,39 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Domain\Orders\Enums;
+
+enum OrderStatus: string
+{
+    case Pending = 'pending';
+    case Confirmed = 'confirmed';
+    case Processing = 'processing';
+    case Shipped = 'shipped';
+    case Delivered = 'delivered';
+    case Cancelled = 'cancelled';
+    case Refunded = 'refunded';
+
+    /** @return list<self> */
+    public function allowedTransitions(): array
+    {
+        return match ($this) {
+            self::Pending => [self::Confirmed, self::Cancelled],
+            self::Confirmed => [self::Processing, self::Cancelled],
+            self::Processing => [self::Shipped, self::Cancelled],
+            self::Shipped => [self::Delivered],
+            self::Delivered => [self::Refunded],
+            self::Cancelled, self::Refunded => [],
+        };
+    }
+
+    public function canTransitionTo(self $next): bool
+    {
+        return in_array($next, $this->allowedTransitions(), true);
+    }
+
+    public function isFinal(): bool
+    {
+        return $this->allowedTransitions() === [];
+    }
+}

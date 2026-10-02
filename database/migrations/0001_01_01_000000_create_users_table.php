@@ -16,9 +16,15 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('email')->unique();
+            // A customer signs up with email, mobile (OTP) or both; at least one is enforced in validation.
+            $table->string('email')->nullable()->unique();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
+            $table->string('phone', 20)->nullable()->unique()->comment('E.164, e.g. +9665XXXXXXXX');
+            $table->timestamp('phone_verified_at')->nullable();
+            $table->string('password')->nullable()->comment('Null for OTP-only accounts');
+            $table->char('locale', 2)->default('ar');
+            $table->boolean('is_active')->default(true);
+            $table->timestamp('last_login_at')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

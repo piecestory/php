@@ -9,3 +9,5 @@ parameters:
         - database
         - routes
     tmpDir: storage/framework/cache/phpstan
+    # Read types from casts() methods (Laravel 11+ style) instead of only the $casts property
+    parseModelCastsMethod: true

@@ -55,6 +55,18 @@ Guests can buy without an account. A mobile number is required at checkout (cour
 ### ADR-009 — Timezone
 `Asia/Riyadh` (UTC+3, no DST), so stored and displayed times match the business day.
 
+### ADR-010 — DATETIME for required business dates
+MySQL/MariaDB servers running with `explicit_defaults_for_timestamp=OFF` (common on older shared hosts) reject a second NOT NULL `TIMESTAMP` column and silently add `ON UPDATE CURRENT_TIMESTAMP` to the first. Expiry, auction start/end and ledger dates therefore use `DATETIME`, which behaves identically everywhere. Nullable `TIMESTAMP`s (Laravel's `created_at`/`updated_at`) are unaffected.
+
+### ADR-011 — Enforced morph map
+Polymorphic columns (`media`, `status_changes`, `model_has_roles`, …) store short aliases registered in `AppServiceProvider`. Classes can be moved or renamed without rewriting data.
+
+### ADR-012 — One status audit trail
+`status_changes` + the `HasStatusHistory` trait record every workflow transition (orders, finder requests) with author and note, instead of one history table per module.
+
+### ADR-013 — Full-text search tests commit
+InnoDB FULLTEXT indexes only see committed rows. Tests that exercise search live in `tests/Integration` and use `DatabaseTruncation`; all other feature tests roll back.
+
 ## Directory map
 
 ```
