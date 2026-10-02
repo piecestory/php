@@ -13,6 +13,8 @@ class SettingsSeeder extends Seeder
     private const array DEFAULTS = [
         // Mobile-code sign-in stays off until an SMS provider is configured.
         ['sms', 'enabled', '0'],
+        // Public contact email (provided by the owner).
+        ['store', 'email', 'info@piecenstory.com'],
     ];
 
     public function run(): void
