@@ -34,7 +34,7 @@
                             @if ($loop->first) fetchpriority="high" @else loading="lazy" @endif
                             data-fallback="{{ asset('images/placeholder.svg') }}">
                     </picture>
-                    <div class="absolute inset-0 -z-10 bg-linear-to-l from-night/85 via-night/50 to-transparent ltr:bg-linear-to-r"></div>
+                    <div class="absolute inset-0 -z-10 bg-linear-to-l from-night/95 from-15% via-night/65 to-night/10 ltr:bg-linear-to-r"></div>
                     <div class="container-page pt-16 pb-32 lg:pb-40">
                         <div class="max-w-xl space-y-5 text-ivory">
                             <h1 class="text-display-xl text-ivory">{{ $slide->translate('title') }}</h1>

@@ -8,7 +8,6 @@ use App\Domain\Catalog\Enums\ProductAvailability;
 use App\Domain\Catalog\Enums\ProductCondition;
 use App\Domain\Catalog\Models\Category;
 use App\Domain\Catalog\Models\Collection;
-use App\Domain\Catalog\Models\Era;
 use App\Domain\Catalog\Models\Material;
 use App\Domain\Catalog\Models\Origin;
 use App\Domain\Catalog\Models\Product;
@@ -18,9 +17,13 @@ use Illuminate\Database\Seeder;
 use RuntimeException;
 
 /**
- * Sample catalogue for staging and design review ONLY. Every piece is marked as a sample
- * (SKU DEMO-###, sample description) and is removed with `php artisan catalog:remove-demo`.
- * Run with: php artisan db:seed --class=DemoCatalogSeeder
+ * Sample catalogue for staging and design review ONLY, built on the owner's showroom photos.
+ * Names describe what each photo shows; prices, conditions and descriptions are placeholders for the
+ * team to replace from the admin panel. Every piece is marked (SKU DEMO-###, sample description) and is
+ * removed with `php artisan catalog:remove-demo`.
+ *
+ * Run with: php artisan db:seed --class=DemoCatalogSeeder (then `php artisan queue:work --stop-when-empty`
+ * locally to generate image renditions).
  */
 class DemoCatalogSeeder extends Seeder
 {
@@ -28,37 +31,44 @@ class DemoCatalogSeeder extends Seeder
 
     public const string COLLECTION_PREFIX = 'demo-';
 
-    // [ar, en, category, era, origin, materials, price, condition, extras]
+    private const string PHOTOS = 'seeders/assets/demo-catalog';
+
+    // [ar, en, category, origin, materials, price, condition, extras, photos]
     private const array PIECES = [
-        ['جرامافون أنتيك ببوق نحاسي', 'Antique brass-horn gramophone', 'antiques', 'early-20th-century', 'england', ['wood', 'brass'], 2150, 'very_good', []],
-        ['ساعة رف فرنسية مذهبة', 'Gilded French mantel clock', 'antiques', '19th-century', 'france', ['bronze', 'gilt'], 2950, 'excellent', ['rare' => true]],
-        ['نجفة كريستال بستة أذرع', 'Six-arm crystal chandelier', 'chandeliers-lighting', 'mid-20th-century', 'czech', ['crystal', 'brass'], 4200, 'excellent', ['sale' => 3800]],
-        ['أباجورة برونزية بغطاء قماشي', 'Bronze table lamp with fabric shade', 'chandeliers-lighting', 'early-20th-century', 'france', ['bronze', 'fabric'], 1350, 'good', []],
-        ['كرسي برجير مطرز يدويًا', 'Hand-embroidered bergère armchair', 'classic-furniture', '19th-century', 'france', ['wood', 'fabric'], 3750, 'restored', ['sale' => 3400]],
-        ['طاولة جانبية بسطح رخامي', 'Marble-top side table', 'classic-furniture', 'early-20th-century', 'italy', ['wood', 'marble'], 2600, 'very_good', []],
-        ['كونسول مذهب بمرآة', 'Gilt console with mirror', 'classic-furniture', '19th-century', 'italy', ['wood', 'gilt', 'glass'], 8900, 'restored', ['rare' => true]],
-        ['لوحة زيتية لمنظر ريفي', 'Oil painting of a country landscape', 'art', '19th-century', 'england', ['canvas'], 6400, 'very_good', []],
-        ['لوحة طبيعة صامتة بإطار مذهب', 'Still life in a gilt frame', 'art', 'mid-20th-century', 'france', ['canvas', 'gilt'], 3200, 'excellent', []],
-        ['مزهرية صينية بزخارف زرقاء', 'Blue-and-white Chinese vase', 'rare-pieces', '19th-century', 'china', ['porcelain'], 1850, 'very_good', ['rare' => true]],
-        ['طقم شاي بورسلين مذهب', 'Gilded porcelain tea set', 'luxury-homeware', 'mid-20th-century', 'austria', ['porcelain', 'gilt'], 1450, 'excellent', []],
-        ['صينية فضية محفورة', 'Engraved silver tray', 'luxury-homeware', 'early-20th-century', 'egypt', ['silver'], 2750, 'very_good', []],
-        ['إبريق نحاسي دمشقي', 'Damascene brass ewer', 'antiques', '19th-century', 'syria', ['brass'], 1900, 'good', []],
-        ['صندوق مجوهرات مطعّم بالصدف', 'Mother-of-pearl inlaid jewellery box', 'antiques', 'early-20th-century', 'syria', ['wood'], 1250, 'very_good', []],
-        ['مرآة جدارية بإطار منحوت', 'Carved-frame wall mirror', 'classic-furniture', '19th-century', 'italy', ['wood', 'gilt', 'glass'], 4800, 'restored', ['availability' => 'reserved']],
-        ['تمثال برونزي لفارس', 'Bronze horseman sculpture', 'rare-pieces', '19th-century', 'france', ['bronze', 'marble'], 7500, 'excellent', ['rare' => true]],
-        ['زوج شمعدانات كريستال', 'Pair of crystal candelabra', 'chandeliers-lighting', 'mid-20th-century', 'czech', ['crystal'], 2200, 'excellent', []],
-        ['فازة زجاج مورانو', 'Murano glass vase', 'luxury-homeware', 'mid-20th-century', 'italy', ['glass'], 1650, 'excellent', []],
-        ['سجادة حرير منسوجة يدويًا', 'Hand-woven silk rug', 'luxury-homeware', 'contemporary', 'turkey', ['fabric'], 9500, 'excellent', []],
-        ['كرسي هزاز خشبي', 'Wooden rocking chair', 'classic-furniture', 'early-20th-century', 'england', ['wood'], 1950, 'good', ['availability' => 'sold']],
-        ['خريطة عتيقة مؤطرة', 'Framed antique map', 'art', '18th-century', 'england', ['glass', 'wood'], 2400, 'as_found', ['rare' => true]],
-        ['مصباح مكتب نحاسي', 'Brass desk lamp', 'chandeliers-lighting', 'early-20th-century', 'england', ['brass'], 980, 'good', []],
-        ['طبق خزفي مغربي', 'Moroccan ceramic plate', 'luxury-homeware', 'contemporary', 'morocco', ['porcelain'], 650, 'excellent', []],
-        ['مبخرة فضية', 'Silver incense burner', 'luxury-homeware', 'mid-20th-century', 'india', ['silver'], 1100, 'very_good', []],
+        ['أورغ كهربائي منزلي إيطالي كلاسيكي', 'Vintage Italian home electronic organ', 'antiques', 'italy', ['wood'], 3500, 'very_good', [], ['0197']],
+        ['نجفة كريستال طراز إمباير', 'Empire-style crystal chandelier', 'chandeliers-lighting', null, ['crystal', 'brass'], 12500, 'excellent', ['rare' => true], ['1006', '0596']],
+        ['نجفة زجاجية بطبقات متدرجة', 'Tiered glass-prism chandelier', 'chandeliers-lighting', null, ['glass'], 6800, 'very_good', [], ['0597']],
+        ['إبريق شاي بورسلين مزهّر مع صحنه', 'Floral porcelain teapot with saucer', 'luxury-homeware', null, ['porcelain'], 450, 'excellent', [], ['0763']],
+        ['إبريق نحاسي منقوش', 'Engraved brass ewer', 'antiques', null, ['brass'], 1800, 'good', [], ['0800']],
+        ['نجفة بورسلين مزخرفة بالورود', 'Floral porcelain chandelier', 'chandeliers-lighting', null, ['porcelain'], 5400, 'very_good', [], ['0860']],
+        ['مجسم سفينة شراعية خشبية', 'Wooden sailing-ship model', 'rare-pieces', null, ['wood', 'fabric'], 4200, 'very_good', ['rare' => true], ['0923', '0924', '0925', '0928']],
+        ['نجفة كريستال بأذرع شموع', 'Candle-arm crystal chandelier', 'chandeliers-lighting', null, ['crystal'], 9800, 'excellent', ['sale' => 8900], ['0938']],
+        ['مزهرية بورسلين خضراء بغطاء', 'Lidded green porcelain urn', 'luxury-homeware', null, ['porcelain', 'gilt'], 2900, 'very_good', [], ['1001']],
+        ['طقم ساعة رف وشمعدانين من البرونز المذهّب', 'Gilt-bronze clock garniture with candelabra', 'antiques', null, ['bronze', 'gilt'], 7800, 'very_good', ['rare' => true], ['1008', '1009', '1010']],
+        ['زوج مزهريات بورسلين مزخرفة', 'Pair of decorated porcelain vases', 'luxury-homeware', null, ['porcelain', 'gilt'], 3600, 'excellent', [], ['1016']],
+        ['مزهرية بورسلين زرقاء بزخارف الطيور', 'Blue porcelain vase with bird motifs', 'rare-pieces', null, ['porcelain'], 2400, 'excellent', [], ['1023']],
+        ['طبق تذكاري مزخرف', 'Decorative souvenir plate', 'luxury-homeware', null, [], 250, 'good', [], ['1035']],
+        ['نجفة كريستال كلاسيكية', 'Classic crystal chandelier', 'chandeliers-lighting', null, ['crystal'], 7600, 'excellent', [], ['1087']],
+        ['خزانة عرض خشبية كلاسيكية', 'Classic wooden display sideboard', 'classic-furniture', null, ['wood'], 8500, 'good', [], ['1093']],
+        ['نافورة حديقة بتمثال طفل', 'Garden fountain with child figure', 'art', null, [], 5200, 'very_good', [], ['1122']],
+        ['ساعة رف برونزية بتمثال على قاعدة رخامية', 'Bronze figural mantel clock on marble base', 'antiques', null, ['bronze', 'marble'], 4600, 'good', ['rare' => true], ['1130']],
+        ['مزهرية بورسلين مزهّرة بمقابض مذهّبة', 'Floral porcelain vase with gilt handles', 'luxury-homeware', null, ['porcelain', 'gilt'], 2200, 'excellent', [], ['1143', '1145']],
+        ['لوحة زيتية لمشهد شارع قديم', 'Oil painting of an old street scene', 'art', null, ['canvas', 'gilt'], 6900, 'very_good', [], ['1362']],
+        ['أباجورة بقاعدة تمثال كلاسيكي', 'Classical figure table lamp', 'chandeliers-lighting', null, ['fabric'], 1900, 'excellent', [], ['1400']],
+        ['تمثال حصان أبيض بلمسات ذهبية', 'White rearing horse with gold accents', 'art', null, ['gilt'], 3200, 'excellent', [], ['1569']],
+        ['تمثال حصان برونزي', 'Bronze horse sculpture', 'art', null, ['bronze'], 3900, 'very_good', ['availability' => 'reserved'], ['1860', '1861']],
+        ['علبة حلوى كريستال بغطاء', 'Lidded crystal bonbonnière', 'luxury-homeware', null, ['crystal'], 380, 'excellent', [], ['2105', '2106']],
+        ['حامل مصحف خزفي مزخرف', 'Decorated ceramic Quran stand', 'luxury-homeware', null, ['porcelain', 'gilt'], 650, 'excellent', [], ['2312', '2313', '2310', '2314', '2311']],
+        ['راديو خشبي عتيق', 'Vintage wooden cabinet radio', 'antiques', null, ['wood'], 4400, 'as_found', ['rare' => true, 'availability' => 'sold'], ['2501']],
+        ['علبة مزخرفة باللون الأحمر', 'Red decorated trinket box', 'luxury-homeware', null, ['porcelain'], 320, 'excellent', [], ['2968', '2969']],
+        ['صحن صغير أحمر مزخرف', 'Small decorated red dish', 'luxury-homeware', null, ['porcelain'], 260, 'excellent', ['sale' => 220], ['2970', '2971']],
+        ['لوحة المسجد النبوي بإطار مذهّب', 'Framed artwork of the Prophet’s Mosque', 'art', null, ['gilt'], 2800, 'excellent', [], ['3003', '3004', '3005']],
     ];
 
+    // [slug, ar, en, piece numbers (1-based)]
     private const array COLLECTIONS = [
-        ['classic-salon', 'صالون كلاسيكي', 'Classic salon', [5, 6, 7, 15]],
-        ['crystal-light', 'نور الكريستال', 'Crystal light', [3, 4, 17, 22]],
+        ['classic-salon', 'صالون كلاسيكي', 'Classic salon', [15, 10, 11, 19]],
+        ['crystal-light', 'نور الكريستال', 'Crystal light', [2, 3, 8, 14]],
     ];
 
     public function run(): void
@@ -67,37 +77,37 @@ class DemoCatalogSeeder extends Seeder
             throw new RuntimeException('Demo catalogue data must never be seeded in production.');
         }
 
-        $this->call([CategorySeeder::class, CatalogAttributeSeeder::class]);
+        $this->callSilent([CategorySeeder::class, CatalogAttributeSeeder::class]);
 
         $categories = Category::query()->pluck('id', 'slug_en');
-        $eras = Era::query()->pluck('id', 'slug');
         $origins = Origin::query()->pluck('id', 'slug');
         $materials = Material::query()->pluck('id', 'slug');
         $ids = [];
 
-        foreach (self::PIECES as $index => [$ar, $en, $category, $era, $origin, $materialSlugs, $price, $condition, $extras]) {
+        foreach (self::PIECES as $index => [$ar, $en, $category, $origin, $materialSlugs, $price, $condition, $extras, $photos]) {
             $sku = self::SKU_PREFIX.str_pad((string) ($index + 1), 3, '0', STR_PAD_LEFT);
             $product = Product::query()->updateOrCreate(['sku' => $sku], [
                 'category_id' => $categories[$category],
-                'era_id' => $eras[$era] ?? null,
-                'origin_id' => $origins[$origin] ?? null,
+                'origin_id' => $origin !== null ? $origins[$origin] : null,
                 'name_ar' => $ar,
                 'name_en' => $en,
                 'slug_ar' => Slug::make($ar.' '.$sku),
                 'slug_en' => Slug::make($en.' '.$sku),
-                'description_ar' => 'قطعة تجريبية لعرض تصميم المتجر، وستُستبدل بالقطع الحقيقية.',
-                'description_en' => 'Sample piece used to preview the store design; it will be replaced by real pieces.',
+                'description_ar' => 'قطعة تجريبية لعرض تصميم المتجر بصور من المعرض؛ السعر والتفاصيل مؤقتة.',
+                'description_en' => 'Sample piece previewing the store with showroom photos; price and details are placeholders.',
                 'price' => $price,
                 'sale_price' => $extras['sale'] ?? null,
                 'stock_quantity' => ($extras['availability'] ?? null) === 'sold' ? 0 : 1,
                 'availability' => ProductAvailability::from($extras['availability'] ?? 'available'),
                 'condition' => ProductCondition::from($condition),
                 'is_rare' => $extras['rare'] ?? false,
-                'is_featured' => $index < 8,
+                'is_featured' => $index < 10,
                 'status' => PublicationStatus::Published,
                 'published_at' => now()->subDays(count(self::PIECES) - $index),
             ]);
+
             $product->materials()->sync(array_map(fn (string $slug) => $materials[$slug], $materialSlugs));
+            $this->attachPhotos($product, $photos);
             $ids[$index + 1] = $product->id;
         }
 
@@ -112,6 +122,27 @@ class DemoCatalogSeeder extends Seeder
                 'is_active' => true,
             ]);
             $collection->products()->sync(collect($pieces)->mapWithKeys(fn (int $n, int $i) => [$ids[$n] => ['sort_order' => $i]])->all());
+
+            if (! $collection->hasMedia(Collection::MEDIA_COVER)) {
+                $collection->addMedia(database_path(self::PHOTOS.'/'.self::PIECES[$pieces[0] - 1][8][0].'.jpg'))
+                    ->preservingOriginal()
+                    ->toMediaCollection(Collection::MEDIA_COVER);
+            }
+        }
+    }
+
+    /** @param list<string> $photos */
+    private function attachPhotos(Product $product, array $photos): void
+    {
+        if ($product->hasMedia(Product::MEDIA_GALLERY)) {
+            return;
+        }
+
+        foreach ($photos as $photo) {
+            $product->addMedia(database_path(self::PHOTOS."/{$photo}.jpg"))
+                ->preservingOriginal()
+                ->withCustomProperties(['alt_ar' => $product->name_ar, 'alt_en' => $product->name_en])
+                ->toMediaCollection(Product::MEDIA_GALLERY);
         }
     }
 }

@@ -8,6 +8,7 @@ use App\Domain\Catalog\Models\Product;
 use App\Support\Localization\LocalizedRoute;
 use Database\Seeders\DemoCatalogSeeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Queue;
 
 it('lists published pieces in the store with a result count', function (): void {
     Product::factory()->published()->count(3)->create();
@@ -83,9 +84,13 @@ it('prefixes internal admin links with the visitor language', function (): void 
 it('seeds clearly marked sample pieces and removes only them', function (): void {
     $real = Product::factory()->published()->create(['sku' => 'PS-REAL-1']);
 
+    Queue::fake(); // skip generating image renditions
+
     $this->seed(DemoCatalogSeeder::class);
-    expect(Product::query()->where('sku', 'like', 'DEMO-%')->count())->toBe(24)
-        ->and(Product::query()->where('sku', 'like', 'DEMO-%')->first()->description_ar)->toContain('تجريبية');
+    $demo = Product::query()->where('sku', 'like', 'DEMO-%');
+    expect($demo->count())->toBe(28)
+        ->and($demo->first()->description_ar)->toContain('تجريبية')
+        ->and($demo->first()->getMedia(Product::MEDIA_GALLERY))->not->toBeEmpty();
 
     $this->artisan('catalog:remove-demo', ['--force' => true])->assertSuccessful();
 
