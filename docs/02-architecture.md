@@ -79,7 +79,8 @@ app/
 docs/                project documentation and brand references
 tests/Arch           architecture rules
 tests/Unit           pure logic
-tests/Feature        HTTP / database behaviour
+tests/Feature        HTTP / database behaviour (rolled back per test)
+tests/Integration    behaviour needing committed data (full-text search)
 .github/workflows    CI: lint, static analysis, audit, tests on MySQL + MariaDB
 ```
 
