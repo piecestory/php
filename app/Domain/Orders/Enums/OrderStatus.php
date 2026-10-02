@@ -14,6 +14,11 @@ enum OrderStatus: string
     case Cancelled = 'cancelled';
     case Refunded = 'refunded';
 
+    public function label(): string
+    {
+        return __("orders.status.{$this->value}");
+    }
+
     /** @return list<self> */
     public function allowedTransitions(): array
     {

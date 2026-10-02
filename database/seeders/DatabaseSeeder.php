@@ -16,6 +16,8 @@ class DatabaseSeeder extends Seeder
             CategorySeeder::class,
             BranchSeeder::class,
             ShippingMethodSeeder::class,
+            SettingsSeeder::class,
+            FaqSeeder::class,
         ]);
     }
 }

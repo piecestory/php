@@ -12,3 +12,5 @@ Luxury antiques e-commerce (Arabic-first RTL + English LTR). Laravel 13 / Livewi
 - PHP extensions are enabled per project: set `PHP_INI_SCAN_DIR` to `<repo>/.dev/php` before running `php`/`composer`.
 - Database: isolated MariaDB on port 3307. Start with `.dev/start-db.ps1`. Databases `piece_story` and `piece_story_test`.
 - Edit files with the editor tools or Bash — PowerShell `Set-Content -Encoding utf8` writes a BOM that breaks `declare(strict_types=1)`.
+- After changing Tailwind classes or JS run `npm run build` (assets are compiled; the dev server serves `public/build`).
+- Local preview: `.claude/launch.json` → "app" (http://localhost:8000). Arabic at `/`, English at `/en`.

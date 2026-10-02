@@ -67,6 +67,18 @@ Polymorphic columns (`media`, `status_changes`, `model_has_roles`, …) store sh
 ### ADR-013 — Full-text search tests commit
 InnoDB FULLTEXT indexes only see committed rows. Tests that exercise search live in `tests/Integration` and use `DatabaseTruncation`; all other feature tests roll back.
 
+### ADR-014 — Locale in the URL
+`routes/storefront.php` is registered twice by `routes/web.php`: Arabic at `/` (plain route names) and English at `/en` (`en.` names). `SetLocale` takes the language from the route, never from session. Use `localized_route('name')` in views; `LocalizedRoute::switchTo()` builds the language switch and `hreflang` links.
+
+### ADR-015 — Navigation shows only built pages
+`App\View\Navigation` lists menu entries in order; an entry appears only when its route exists. Product-card actions (wishlist, cart) follow the same rule. No placeholder links or non-working buttons ship.
+
+### ADR-016 — Authentication
+Own thin controllers over Laravel primitives (no Fortify): email-or-mobile + password, password reset, and SMS one-time codes behind the `SmsGateway` interface. Mobile sign-in returns 404 until `sms.enabled` is switched on from admin settings. Codes are hashed, expire after 5 minutes, die after 5 wrong attempts; per-number and per-IP request limits. Named rate limiters (`auth-forms`, `lookups`) count per form and visitor.
+
+### ADR-017 — CSP-ready front end
+Livewire/Alpine use the CSP build bundled through Vite; interactive behaviour is registered as named `Alpine.data` components in `resources/js/app.js`. No inline scripts or handlers, so a strict Content-Security-Policy can be enabled in Phase 15.
+
 ## Directory map
 
 ```

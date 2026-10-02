@@ -4,6 +4,7 @@
     'href' => null,
     'linkLabel' => null,
     'as' => 'h2',
+    'id' => null,
 ])
 
 <div {{ $attributes->class(['flex items-end justify-between gap-6']) }}>
@@ -11,7 +12,7 @@
         @if ($eyebrow)
             <p class="mb-2 text-xs font-medium tracking-[0.18em] text-bronze uppercase">{{ $eyebrow }}</p>
         @endif
-        <{{ $as }} class="text-display-md">{{ $title }}</{{ $as }}>
+        <{{ $as }} @if ($id) id="{{ $id }}" @endif class="text-display-md">{{ $title }}</{{ $as }}>
     </div>
     @if ($href)
         <a href="{{ $href }}"

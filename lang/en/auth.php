@@ -1,0 +1,67 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'failed' => 'These credentials do not match our records.',
+    'password' => 'The provided password is incorrect.',
+    'throttle' => 'Too many attempts. Please try again in :seconds seconds.',
+
+    'login' => [
+        'title' => 'Sign in',
+        'intro' => 'Welcome back to Piece & Story.',
+        'identifier' => 'Email or mobile number',
+        'password' => 'Password',
+        'remember' => 'Keep me signed in on this device',
+        'submit' => 'Sign in',
+        'forgot' => 'Forgot your password?',
+        'with_mobile' => 'Sign in with a code on your mobile',
+        'no_account' => 'New here?',
+        'create_account' => 'Create an account',
+    ],
+    'register' => [
+        'title' => 'Create an account',
+        'intro' => 'Save your favourite pieces and follow your orders.',
+        'name' => 'Full name',
+        'email' => 'Email',
+        'phone' => 'Mobile number',
+        'phone_hint' => 'Used to arrange delivery. Example: 0512345678',
+        'password' => 'Password',
+        'password_confirmation' => 'Confirm password',
+        'terms' => 'I agree to the terms and conditions and privacy policy',
+        'submit' => 'Create account',
+        'have_account' => 'Already have an account?',
+    ],
+    'forgot' => [
+        'title' => 'Reset your password',
+        'intro' => 'Enter your email and we will send you a link to choose a new password.',
+        'submit' => 'Send link',
+        'back' => 'Back to sign in',
+    ],
+    'reset' => [
+        'title' => 'Choose a new password',
+        'submit' => 'Save password',
+    ],
+    'otp' => [
+        'title' => 'Sign in with your mobile',
+        'intro' => 'We will text a verification code to your mobile.',
+        'send' => 'Send code',
+        'code_title' => 'Enter your code',
+        'code_intro' => 'We sent a :digits-digit code to',
+        'code' => 'Verification code',
+        'verify' => 'Verify',
+        'change_number' => 'Change number',
+        'resend' => 'Send a new code',
+        'profile_title' => 'Complete your account',
+        'profile_intro' => 'Your number is verified. Tell us your name to finish.',
+        'email_optional' => 'Email (optional)',
+        'finish' => 'Finish',
+        'sms' => 'Your Piece & Story sign-in code: :code. Valid for :minutes minutes. Do not share it.',
+        'wrong' => 'That code is not correct.',
+        'expired' => 'This code has expired. Please request a new one.',
+    ],
+    'welcome' => 'Welcome, :name. Your account is ready.',
+    'reset_link_sent' => 'If that email is registered with us, a reset link is on its way.',
+    'logout' => 'Sign out',
+    'or' => 'or',
+];

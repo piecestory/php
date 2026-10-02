@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Settings\Models;
 
+use App\Domain\Settings\StoreSettings;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -21,6 +22,14 @@ class Setting extends Model
     protected function casts(): array
     {
         return ['is_encrypted' => 'boolean'];
+    }
+
+    protected static function booted(): void
+    {
+        $flush = fn () => app(StoreSettings::class)->flush();
+
+        static::saved($flush);
+        static::deleted($flush);
     }
 
     public static function put(string $group, string $key, ?string $value, bool $encrypt = false): self
