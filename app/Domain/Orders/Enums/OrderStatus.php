@@ -7,6 +7,8 @@ namespace App\Domain\Orders\Enums;
 enum OrderStatus: string
 {
     case Pending = 'pending';
+    /** Advance reservation: the pieces are held for the customer until they pay the rest. */
+    case Reserved = 'reserved';
     case Confirmed = 'confirmed';
     case Processing = 'processing';
     case Shipped = 'shipped';
@@ -23,7 +25,8 @@ enum OrderStatus: string
     public function allowedTransitions(): array
     {
         return match ($this) {
-            self::Pending => [self::Confirmed, self::Cancelled],
+            self::Pending => [self::Confirmed, self::Reserved, self::Cancelled],
+            self::Reserved => [self::Confirmed, self::Cancelled],
             self::Confirmed => [self::Processing, self::Cancelled],
             self::Processing => [self::Shipped, self::Cancelled],
             self::Shipped => [self::Delivered],

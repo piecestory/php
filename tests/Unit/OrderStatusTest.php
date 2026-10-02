@@ -13,6 +13,9 @@ it('follows the approved order lifecycle', function (OrderStatus $from, OrderSta
     [OrderStatus::Shipped, OrderStatus::Delivered],
     [OrderStatus::Delivered, OrderStatus::Refunded],
     [OrderStatus::Pending, OrderStatus::Cancelled],
+    [OrderStatus::Pending, OrderStatus::Reserved],
+    [OrderStatus::Reserved, OrderStatus::Confirmed],
+    [OrderStatus::Reserved, OrderStatus::Cancelled],
     [OrderStatus::Confirmed, OrderStatus::Cancelled],
     [OrderStatus::Processing, OrderStatus::Cancelled],
 ]);
@@ -25,6 +28,7 @@ it('rejects transitions outside the lifecycle', function (OrderStatus $from, Ord
     'cancel after shipping' => [OrderStatus::Shipped, OrderStatus::Cancelled],
     'reopen cancelled' => [OrderStatus::Cancelled, OrderStatus::Pending],
     'refund before delivery' => [OrderStatus::Processing, OrderStatus::Refunded],
+    'ship a reservation before payment' => [OrderStatus::Reserved, OrderStatus::Processing],
     'same status' => [OrderStatus::Pending, OrderStatus::Pending],
 ]);
 

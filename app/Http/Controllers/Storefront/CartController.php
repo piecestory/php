@@ -19,17 +19,15 @@ use Illuminate\Http\Request;
 /** Cart page and cart changes. Forms work without JavaScript; with it they are sent in the background (JSON). */
 class CartController extends Controller
 {
-    public function __construct(private readonly CurrentCart $cart) {}
-
     public function show(): View
     {
-        return view('storefront.cart', ['summary' => $this->cart->summary()]);
+        return view('storefront.cart', ['summary' => $this->cart()->summary()]);
     }
 
     public function add(Request $request, Product $product, AddToCart $add): JsonResponse|RedirectResponse
     {
         try {
-            $add->handle($this->cart->getOrCreate(...), $product, $request->integer('quantity', 1));
+            $add->handle($this->cart()->getOrCreate(...), $product, $request->integer('quantity', 1));
         } catch (CartException $e) {
             return $this->respond($request, __($e->translationKey()), success: false);
         }
@@ -40,7 +38,7 @@ class CartController extends Controller
     public function update(Request $request, Product $product, UpdateCartItem $update): JsonResponse|RedirectResponse
     {
         $request->validate(['quantity' => ['required', 'integer', 'min:0', 'max:99']]);
-        $cart = $this->cart->get();
+        $cart = $this->cart()->get();
 
         if ($cart !== null) {
             try {
@@ -55,7 +53,7 @@ class CartController extends Controller
 
     public function remove(Request $request, Product $product, UpdateCartItem $update): JsonResponse|RedirectResponse
     {
-        if (($cart = $this->cart->get()) !== null) {
+        if (($cart = $this->cart()->get()) !== null) {
             $update->handle($cart, $product, 0);
         }
 
@@ -64,8 +62,8 @@ class CartController extends Controller
 
     private function respond(Request $request, string $message, bool $success = true): JsonResponse|RedirectResponse
     {
-        $this->cart->refresh();
-        $summary = $this->cart->summary();
+        $this->cart()->refresh();
+        $summary = $this->cart()->summary();
 
         if ($request->expectsJson()) {
             return response()->json([
@@ -76,5 +74,11 @@ class CartController extends Controller
         }
 
         return back()->with($success ? 'status' : 'error', $message);
+    }
+
+    /** Resolved per call: a controller instance can outlive the request (router cache, Octane); the visitor's cart must not. */
+    private function cart(): CurrentCart
+    {
+        return app(CurrentCart::class);
     }
 }

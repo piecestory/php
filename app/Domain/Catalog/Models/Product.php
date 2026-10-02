@@ -7,6 +7,7 @@ namespace App\Domain\Catalog\Models;
 use App\Domain\Catalog\Enums\ProductAvailability;
 use App\Domain\Catalog\Enums\ProductCondition;
 use App\Domain\Inventory\Models\InventoryMovement;
+use App\Domain\Inventory\Models\StockReservation;
 use App\Domain\Shared\Concerns\HasPublication;
 use App\Domain\Shared\Concerns\HasWebpRenditions;
 use App\Domain\Shared\Enums\PublicationStatus;
@@ -147,5 +148,18 @@ class Product extends Model implements HasMedia
     public function inventoryMovements(): HasMany
     {
         return $this->hasMany(InventoryMovement::class);
+    }
+
+    /** @return HasMany<StockReservation, $this> */
+    public function stockReservations(): HasMany
+    {
+        return $this->hasMany(StockReservation::class);
+    }
+
+    /** Out of stock only because an open order or reservation holds it (shown as "reserved", not "sold"). */
+    public function isOnHold(): bool
+    {
+        return $this->stock_quantity === 0
+            && $this->stockReservations()->where('expires_at', '>', now())->exists();
     }
 }

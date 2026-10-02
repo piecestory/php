@@ -13,3 +13,5 @@ pest()->extend(TestCase::class)
 pest()->extend(TestCase::class)
     ->use(DatabaseTruncation::class)
     ->in('Integration');
+
+require_once __DIR__.'/Support/checkout.php';

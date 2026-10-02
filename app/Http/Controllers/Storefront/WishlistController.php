@@ -14,11 +14,9 @@ use Illuminate\Http\Request;
 
 class WishlistController extends Controller
 {
-    public function __construct(private readonly CurrentWishlist $wishlist) {}
-
     public function show(): View
     {
-        $ids = $this->wishlist->ids();
+        $ids = $this->wishlist()->ids();
         $products = Product::query()->published()->whereIn('id', $ids)->with('media')->get()
             ->sortBy(fn (Product $product) => array_search($product->id, $ids, true))
             ->values();
@@ -30,13 +28,19 @@ class WishlistController extends Controller
     {
         abort_unless($product->isPublished(), 404);
 
-        $saved = $this->wishlist->toggle($product);
+        $saved = $this->wishlist()->toggle($product);
         $message = __($saved ? 'wishlist.added' : 'wishlist.removed', ['name' => $product->translate('name')]);
 
         if ($request->expectsJson()) {
-            return response()->json(['ok' => true, 'saved' => $saved, 'count' => $this->wishlist->count(), 'message' => $message]);
+            return response()->json(['ok' => true, 'saved' => $saved, 'count' => $this->wishlist()->count(), 'message' => $message]);
         }
 
         return back()->with('status', $message);
+    }
+
+    /** Resolved per call: a controller instance can outlive the request (router cache, Octane); the visitor's list must not. */
+    private function wishlist(): CurrentWishlist
+    {
+        return app(CurrentWishlist::class);
     }
 }

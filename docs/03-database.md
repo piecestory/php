@@ -13,9 +13,9 @@ Phase 3 deliverable. Migrations in `database/migrations`, models in `app/Domain/
 | Wishlist | `wishlist_items` | one row per user + product |
 | Cart | `carts`, `cart_items` | guest carts by token, one cart per user; **no prices stored** |
 | Shipping | `shipping_methods`, `shipments` | delivery disabled until pricing is decided; branch pickup active |
-| Orders | `orders`, `order_items` | address and product snapshots; customer deletion keeps the order (`set null`) |
+| Orders | `orders`, `order_items` | address and product snapshots; customer deletion keeps the order (`set null`); `type` (purchase / reservation / deposit_reservation), `access_token` (unique, opens the order page), `deposit_total`, `amount_paid`, `hold_expires_at` + `reserved_until` + `reminded_at` (DATETIME), index (status, hold_expires_at) |
 | Inventory | `stock_reservations`, `inventory_movements` | reservations expire; movements are an append-only ledger |
-| Payments | `payments`, `payment_webhook_events`, `refunds` | money tables use `restrict`; webhook events unique per provider + event id |
+| Payments | `payments`, `payment_webhook_events`, `refunds` | money tables use `restrict`; webhook events unique per provider + event id; `payments.purpose` = full / deposit / balance |
 | Workflow | `status_changes` | one audit trail for orders, finder requests, etc. |
 | Personal Finder | `finder_requests` | no login required; unique reference |
 | Auctions | `auctions`, `auction_lots`, `auction_interests` | showcase + "register interest" only; bids not modelled |

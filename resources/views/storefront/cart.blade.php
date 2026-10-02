@@ -1,9 +1,6 @@
 @php
-    use App\Domain\Catalog\Models\Product;
     use App\Support\Localization\LocalizedRoute;
     use App\Support\Money\Money;
-
-    $thumb = fn (Product $product) => $product->responsiveImage(Product::MEDIA_GALLERY)['src'] ?? null;
 @endphp
 
 <x-layouts.store :title="__('cart.title')" noindex>
@@ -24,7 +21,7 @@
                                 @php($product = $line->product())
                                 <li class="flex gap-4 py-5 sm:gap-6">
                                     <a href="{{ localized_route('product', $product) }}" class="w-24 shrink-0 sm:w-28">
-                                        <x-ui.image :src="$thumb($product)" :alt="$product->translate('name')" ratio="1/1" class="rounded-xs border border-line" />
+                                        <x-product.thumb :$product :alt="$product->translate('name')" sizes="7rem" />
                                     </a>
                                     <div class="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                                         <div class="min-w-0">

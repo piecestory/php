@@ -81,7 +81,13 @@
                     </section>
                 @endif
 
-                <x-ui.button variant="outline" :href="localized_route('track-order')">{{ __('orders.track.search_again') }}</x-ui.button>
+                <div class="flex flex-wrap gap-3">
+                    @if ($order->access_token)
+                        {{-- The visitor has just proved they know the order number and mobile: give them the order page. --}}
+                        <x-ui.button :href="\App\Support\Orders\OrderLink::page($order, app()->getLocale())">{{ __('orders.page.view') }}</x-ui.button>
+                    @endif
+                    <x-ui.button variant="outline" :href="localized_route('track-order')">{{ __('orders.track.search_again') }}</x-ui.button>
+                </div>
             </div>
         @endif
     </div>

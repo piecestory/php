@@ -8,8 +8,11 @@ use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Storefront\CartController;
 use App\Http\Controllers\Storefront\CatalogController;
+use App\Http\Controllers\Storefront\CheckoutController;
 use App\Http\Controllers\Storefront\FaqController;
 use App\Http\Controllers\Storefront\HomeController;
+use App\Http\Controllers\Storefront\OrderController;
+use App\Http\Controllers\Storefront\PaymentController;
 use App\Http\Controllers\Storefront\ProductController;
 use App\Http\Controllers\Storefront\TrackOrderController;
 use App\Http\Controllers\Storefront\WishlistController;
@@ -43,6 +46,14 @@ Route::middleware('throttle:shopping')->group(function (): void {
     Route::post('/cart/items/{product:id}/remove', [CartController::class, 'remove'])->withTrashed()->name('cart.remove');
     Route::post('/wishlist/{product:id}', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
 });
+
+Route::get('/checkout', [CheckoutController::class, 'show'])->name('checkout');
+Route::post('/checkout', [CheckoutController::class, 'store'])->middleware('throttle:checkout')->name('checkout.store');
+
+// Order page: opened with the order's private key (or by its signed-in owner).
+Route::get('/orders/{order:number}', [OrderController::class, 'show'])->name('order');
+Route::post('/orders/{order:number}/pay', [OrderController::class, 'pay'])->middleware('throttle:checkout')->name('order.pay');
+Route::get('/payments/{payment}/return', [PaymentController::class, 'return'])->name('payments.return');
 
 Route::get('/track-order', [TrackOrderController::class, 'show'])->name('track-order');
 Route::post('/track-order', [TrackOrderController::class, 'lookup'])

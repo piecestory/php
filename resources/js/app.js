@@ -103,6 +103,56 @@ Alpine.data('toast', () => ({
     },
 }));
 
+// Checkout: shows only the fields the current choices need and keeps the summary in step.
+// Without JavaScript every section stays visible and the server applies the same rules.
+Alpine.data('checkout', () => ({
+    method: '',
+    type: '',
+    totals: {},
+    pickupMethods: [],
+    init() {
+        const form = this.$el;
+        this.totals = JSON.parse(form.dataset.totals || '{}');
+        this.pickupMethods = (form.dataset.pickupMethods || '').split(',');
+        this.method = form.querySelector('input[name="shipping_method"]:checked')?.value || '';
+        this.type = form.querySelector('input[name="order_type"]:checked')?.value || '';
+    },
+    choose(event) {
+        if (event.target.name === 'shipping_method') this.method = event.target.value;
+        if (event.target.name === 'order_type') this.type = event.target.value;
+    },
+    isPickup() {
+        return this.pickupMethods.includes(this.method);
+    },
+    isDelivery() {
+        return this.method !== '' && !this.isPickup();
+    },
+    needsPayment() {
+        return this.type !== 'reservation';
+    },
+    reservesOnly() {
+        return this.type === 'reservation';
+    },
+    isDeposit() {
+        return this.type === 'deposit_reservation';
+    },
+    current() {
+        return this.totals[`${this.method}:${this.type}`] || {};
+    },
+    shippingText() {
+        return this.current().shipping || '';
+    },
+    totalText() {
+        return this.current().total || '';
+    },
+    vatText() {
+        return this.current().vat || '';
+    },
+    depositText() {
+        return this.current().deposit || '';
+    },
+}));
+
 // Product listing filters: a slide-in panel on mobile; on desktop every change applies at once.
 Alpine.data('catalogFilters', () => ({
     open: false,

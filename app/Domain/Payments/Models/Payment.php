@@ -6,6 +6,7 @@ namespace App\Domain\Payments\Models;
 
 use App\Domain\Orders\Models\Order;
 use App\Domain\Payments\Enums\PaymentMethod;
+use App\Domain\Payments\Enums\PaymentPurpose;
 use App\Domain\Payments\Enums\PaymentStatus;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -14,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
-    'order_id', 'provider', 'provider_reference', 'method', 'amount', 'currency', 'status',
+    'order_id', 'provider', 'provider_reference', 'method', 'purpose', 'amount', 'currency', 'status',
     'failure_reason', 'metadata', 'paid_at',
 ])]
 #[Hidden(['metadata'])]
@@ -24,6 +25,7 @@ class Payment extends Model
     {
         return [
             'method' => PaymentMethod::class,
+            'purpose' => PaymentPurpose::class,
             'status' => PaymentStatus::class,
             'amount' => 'decimal:2',
             'metadata' => 'array',

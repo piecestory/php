@@ -6,6 +6,7 @@ namespace App\Domain\Cart\Data;
 
 use App\Domain\Cart\Models\Cart;
 use App\Domain\Cart\Models\CartItem;
+use App\Support\Money\Vat;
 
 /**
  * What the customer would pay now. Prices are read live from the catalogue (VAT inclusive);
@@ -54,11 +55,7 @@ final readonly class CartSummary
             $count += $item->quantity;
         }
 
-        $rate = (string) config('store.vat_rate');
-        // Prices include VAT: vat = total × rate / (100 + rate)
-        $vat = bcdiv(bcmul($total, $rate, 4), bcadd('100', $rate, 2), 2);
-
-        return new self($lines, $unavailable, $total, $vat, $count);
+        return new self($lines, $unavailable, $total, Vat::included($total), $count);
     }
 
     public function isEmpty(): bool

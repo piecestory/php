@@ -74,7 +74,7 @@
                     'text-ink-soft' => ! $card['purchasable'],
                 ])>
                     <span @class(['size-2 rounded-full', 'bg-success' => $card['purchasable'], 'bg-ink-faint' => ! $card['purchasable']])></span>
-                    {{ __('product.availability.'.($product->availability === ProductAvailability::Available && ! $card['purchasable'] ? 'sold' : $product->availability->value)) }}
+                    {{ __('product.availability.'.($product->availability === ProductAvailability::Available && ! $card['purchasable'] ? ($product->isOnHold() ? 'reserved' : 'sold') : $product->availability->value)) }}
                 </p>
 
                 <div class="mt-7 grid gap-3 sm:grid-cols-2">

@@ -100,6 +100,27 @@ Renditions are width-bound and never upscaled; `RecordImageDimensions` stores ea
 - Wishlist: database for members, session for guests. At sign-in (`Login` event) the guest cart and wishlist merge into the account, quantities capped at stock.
 - Buttons are real forms (work without JavaScript); `shopForm` sends them in the background and publishes `cart-updated` / `wishlist-updated` / `notify` window events for the header counters and the toast. Forms are never nested: the catalog filter form wraps only the sidebar.
 
+### ADR-023 — Checkout, stock holds and order numbers
+- One-page checkout (`CheckoutController` + `CheckoutRequest`): contact (mobile required, email optional), pickup showroom or Saudi national address (only active shipping methods are offered), buy now / reserve, payment method. Required fields follow the choices; without JavaScript every section is shown and the server applies the same rules.
+- `PlaceOrder` runs in one transaction: products are locked `FOR UPDATE` in id order (no deadlocks, no double sale of a unique piece), re-checked, snapshotted into `order_items`, and taken out of stock immediately (a **hold**, recorded in `inventory_movements` and `stock_reservations`). The cart is emptied; the order page carries the customer from there.
+- Holds end automatically: unpaid checkouts after `store.payment_hold_minutes` (15), reservations after 4 + 3 days. `orders:expire-holds` (every minute) cancels them through `CancelOrder`, which puts the pieces back and refunds anything captured. A held piece shows as "reserved", not "sold".
+- Order numbers: `PS-<year>-<id, 6 digits>`. Every order has a random 40-char `access_token`: the order page (`/orders/{number}?key=`) opens only with it or for the signed-in owner (404 otherwise, so numbers cannot be probed). The tracking page hands it over once number + mobile match.
+- Status changes only through `TransitionOrder` (validated against `OrderStatus::allowedTransitions`, written to `status_changes`). New status `reserved`: pending → reserved → confirmed / cancelled.
+- Controllers resolve per-request services (`CurrentCart`, `CurrentWishlist`) per call, never in constructors: the router caches controller instances.
+
+### ADR-024 — Payments behind a gateway interface
+- `PaymentGateway` (domain contract): `start` (redirect to the provider's page), `result` (ask the provider), `webhook` (verify signature, parse), `refund`. `PaymentGateways` maps each offered method (mada, Apple Pay, Tabby, Tamara — credit cards not offered) to the first gateway supporting it; methods with no gateway are not shown. Real providers (Moyasar, Tabby, Tamara) plug in here once their accounts exist; nothing else changes.
+- The browser's return is never trusted: the outcome is read from the provider (`result`) or from a signed webhook. `SettlePayment` locks the payment row and is idempotent (return + webhook + retries apply once); a captured amount or currency that differs from the payment is rejected. `payment_webhook_events` (unique provider + event id) makes repeated notifications no-ops.
+- Money that arrives for an order that can no longer take it (expired, already paid) is refunded automatically and recorded in `refunds`; a failed refund is kept as `failed` for manual follow-up.
+- `SandboxGateway` (infrastructure) simulates a hosted payment page with approve / decline buttons and HMAC-signed webhooks. It is registered only when `PAYMENT_SANDBOX=true` **and** the environment is not production. No card data is ever requested.
+
+### ADR-025 — Advance reservation
+- Owner's rules: reservation lasts 4 days, then 3 days of daily payment reminders, then automatic cancellation. Optional deposit of 15% of the total (rounded half-up to the halala), refunded in full on cancellation. Configurable in `config/store.php` (`reservation.*`).
+- Without deposit: the order is `reserved` at once. With deposit: `pending` for the payment window, then `reserved` when the deposit is captured (hold extended to 4 + 3 days). Deposits are card payments (mada / Apple Pay); instalment plans can pay the balance or a full purchase.
+- The balance is paid online from the order page (or in the showroom; recording in-store payments arrives with the admin panel). `orders:remind-reservations` runs daily at 13:00 (start of working hours) and reminds at most once per ~day.
+- Abuse guard: at most `reservation.max_open_per_phone` (2) open reservations per mobile number.
+- Customers are told by SMS (always) and email (when given) when an order is confirmed, a piece is reserved, a reminder is due and a reservation is cancelled; the store mailbox (`store.email`) gets new confirmed orders and reservations. All messages are queued and sent after the transaction commits.
+
 ## Directory map
 
 ```

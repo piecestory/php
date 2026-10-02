@@ -20,6 +20,9 @@ return Application::configure(basePath: dirname(__DIR__))
         // The language must be known before route models are resolved by their localized slug.
         $middleware->prependToPriorityList(before: SubstituteBindings::class, prepend: SetLocale::class);
 
+        // Provider notifications are authenticated by their signature, not a session token.
+        $middleware->validateCsrfTokens(except: ['payments/*/webhook']);
+
         $middleware->redirectGuestsTo(fn () => localized_route('login'));
         $middleware->redirectUsersTo(fn () => localized_route('home'));
     })

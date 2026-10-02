@@ -15,11 +15,13 @@ use App\Domain\Identity\Models\User;
 use App\Domain\Notifications\Sms\LogSmsGateway;
 use App\Domain\Notifications\Sms\SmsGateway;
 use App\Domain\Orders\Models\Order;
+use App\Domain\Payments\PaymentGateways;
 use App\Domain\PersonalFinder\Models\FinderRequest;
 use App\Domain\Settings\StoreSettings;
 use App\Domain\Shared\Listeners\RecordImageDimensions;
 use App\Http\Support\CurrentCart;
 use App\Http\Support\CurrentWishlist;
+use App\Infrastructure\Payments\SandboxGateway;
 use Carbon\CarbonImmutable;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -47,6 +49,18 @@ class AppServiceProvider extends ServiceProvider
 
         // Real providers are selected from admin settings once configured (Phase 11).
         $this->app->bind(SmsGateway::class, LogSmsGateway::class);
+
+        // Real providers (Moyasar for mada / Apple Pay, Tabby, Tamara) are added here once their
+        // accounts are ready. The internal sandbox never runs in production.
+        $this->app->singleton(PaymentGateways::class, function (): PaymentGateways {
+            $gateways = [];
+
+            if (! $this->app->isProduction() && config('payments.sandbox.enabled')) {
+                $gateways[] = $this->app->make(SandboxGateway::class);
+            }
+
+            return new PaymentGateways($gateways);
+        });
     }
 
     public function boot(): void
@@ -103,6 +117,12 @@ class AppServiceProvider extends ServiceProvider
 
         // Cart and wishlist changes: generous for people, a ceiling for scripts.
         RateLimiter::for('shopping', fn (Request $request) => Limit::perMinute(60)->by($request->ip()));
+
+        // Placing orders and starting payments.
+        RateLimiter::for('checkout', fn (Request $request) => Limit::perMinute(10)->by($request->ip()));
+
+        // Payment provider notifications.
+        RateLimiter::for('webhooks', fn (Request $request) => Limit::perMinute(120)->by($request->ip()));
 
         // Order tracking and code checks: blocks guessing order numbers or codes.
         RateLimiter::for('lookups', fn (Request $request) => Limit::perMinute(10)
