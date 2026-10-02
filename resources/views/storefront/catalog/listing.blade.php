@@ -47,14 +47,16 @@
                 alt="{{ $cover['alt'] }}" class="mt-8 aspect-[3/1] w-full rounded-xs object-cover" fetchpriority="high">
         @endif
 
-        <form id="catalog-filters" method="GET" action="{{ $formAction }}" class="mt-8 lg:grid lg:grid-cols-[15rem_1fr] lg:gap-10">
-            @if ($filters->isSearching())
-                <input type="hidden" name="q" value="{{ $filters->search }}">
-            @endif
+        <div class="mt-8 lg:grid lg:grid-cols-[15rem_1fr] lg:gap-10">
 
             {{-- Filters: sidebar on desktop, slide-in panel on mobile --}}
             <aside :data-open="open" aria-label="{{ __('catalog.filters.title') }}"
                 class="hidden data-[open=true]:fixed data-[open=true]:inset-0 data-[open=true]:z-40 data-[open=true]:flex lg:block">
+                {{-- Only the filters are in this form: product cards contain their own (cart/wishlist) forms. --}}
+                <form id="catalog-filters" method="GET" action="{{ $formAction }}" class="contents">
+                @if ($filters->isSearching())
+                    <input type="hidden" name="q" value="{{ $filters->search }}">
+                @endif
                 <div class="absolute inset-0 bg-night/50 lg:hidden" x-on:click="close"></div>
                 <div class="relative ms-auto flex h-full w-[min(22rem,90vw)] flex-col bg-paper lg:h-auto lg:w-auto lg:bg-transparent">
                     <div class="flex h-16 items-center justify-between border-b border-line px-5 lg:hidden">
@@ -116,6 +118,7 @@
                         @endif
                     </div>
                 </div>
+                </form>
             </aside>
 
             {{-- Results --}}
@@ -131,7 +134,7 @@
                     <label class="flex items-center gap-2 text-sm text-ink-soft">
                         <span class="hidden sm:inline">{{ __('catalog.sort.label') }}</span>
                         <span class="relative">
-                            <select name="sort" x-on:change="submitNow" aria-label="{{ __('catalog.sort.label') }}" class="form-control h-10 appearance-none pe-9 text-sm">
+                            <select name="sort" form="catalog-filters" x-on:change="submitNow" aria-label="{{ __('catalog.sort.label') }}" class="form-control h-10 appearance-none pe-9 text-sm">
                                 @foreach (ProductSort::options($filters->isSearching()) as $option)
                                     <option value="{{ $option->value }}" @selected($filters->sort === $option)>{{ $option->label() }}</option>
                                 @endforeach
@@ -156,13 +159,13 @@
                             <li>
                                 <x-product-card :name="$card['name']" :href="$card['href']" :price="$card['price']"
                                     :compare-at="$card['compareAt']" :image="$card['image']" :srcset="$card['srcset']"
-                                    :badges="$card['badges']" :purchasable="$card['purchasable']" :on-request="$card['onRequest']" />
+                                    :badges="$card['badges']" :purchasable="$card['purchasable']" :on-request="$card['onRequest']" :product-id="$card['productId']" :wishlisted="$card['wishlisted']" />
                             </li>
                         @endforeach
                     </ul>
                     <div class="mt-12">{{ $products->links('partials.pagination') }}</div>
                 @endif
             </section>
-        </form>
+        </div>
     </div>
 </x-layouts.store>

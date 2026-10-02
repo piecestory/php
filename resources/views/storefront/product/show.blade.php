@@ -77,8 +77,16 @@
                     {{ __('product.availability.'.($product->availability === ProductAvailability::Available && ! $card['purchasable'] ? 'sold' : $product->availability->value)) }}
                 </p>
 
+                <div class="mt-7 grid gap-3 sm:grid-cols-2">
+                    @if ($card['purchasable'])
+                        <x-shop.add-to-cart :product-id="$product->id" :$name full />
+                    @endif
+                    <x-shop.wishlist-button :product-id="$product->id" :$name :saved="$card['wishlisted']" full
+                        :class="$card['purchasable'] ? '' : 'sm:col-span-2'" />
+                </div>
+
                 @if ($description)
-                    <div class="mt-6 leading-relaxed whitespace-pre-line text-ink-soft">{{ $description }}</div>
+                    <div class="mt-7 leading-relaxed whitespace-pre-line text-ink-soft">{{ $description }}</div>
                 @endif
 
                 <ul class="mt-8 space-y-3 border-t border-line pt-6 text-sm text-ink-soft">
@@ -120,7 +128,7 @@
                         @php($c = ProductCard::from($item))
                         <li>
                             <x-product-card :name="$c['name']" :href="$c['href']" :price="$c['price']" :compare-at="$c['compareAt']"
-                                :image="$c['image']" :srcset="$c['srcset']" :badges="$c['badges']" :purchasable="$c['purchasable']" :on-request="$c['onRequest']" />
+                                :image="$c['image']" :srcset="$c['srcset']" :badges="$c['badges']" :purchasable="$c['purchasable']" :on-request="$c['onRequest']" :product-id="$c['productId']" :wishlisted="$c['wishlisted']" />
                         </li>
                     @endforeach
                 </ul>

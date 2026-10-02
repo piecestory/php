@@ -6,13 +6,14 @@ namespace App\View;
 
 use App\Domain\Catalog\Enums\ProductAvailability;
 use App\Domain\Catalog\Models\Product;
+use App\Http\Support\CurrentWishlist;
 use App\Support\Localization\LocalizedRoute;
 
 /** Maps a product to the props of <x-product-card>, so every listing presents products identically. */
 final class ProductCard
 {
     /**
-     * @return array{name: string, href: ?string, price: string, compareAt: ?string, image: ?string, srcset: ?string, badges: array<string, string>, purchasable: bool, onRequest: bool}
+     * @return array{name: string, href: ?string, price: string, compareAt: ?string, image: ?string, srcset: ?string, badges: array<string, string>, purchasable: bool, productId: int, wishlisted: bool, onRequest: bool}
      */
     public static function from(Product $product): array
     {
@@ -27,7 +28,9 @@ final class ProductCard
             'image' => $image['src'] ?? null,
             'srcset' => $image['srcset'] ?? null,
             'badges' => self::badges($product, $onSale),
-            'purchasable' => $product->availability === ProductAvailability::Available && $product->stock_quantity > 0,
+            'purchasable' => $product->isPurchasable(),
+            'productId' => $product->id,
+            'wishlisted' => app(CurrentWishlist::class)->has($product->id),
             'onRequest' => $product->availability === ProductAvailability::OnRequest,
         ];
     }

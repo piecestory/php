@@ -6,11 +6,13 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\MobileLoginController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Storefront\CartController;
 use App\Http\Controllers\Storefront\CatalogController;
 use App\Http\Controllers\Storefront\FaqController;
 use App\Http\Controllers\Storefront\HomeController;
 use App\Http\Controllers\Storefront\ProductController;
 use App\Http\Controllers\Storefront\TrackOrderController;
+use App\Http\Controllers\Storefront\WishlistController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -30,6 +32,17 @@ Route::controller(CatalogController::class)->group(function (): void {
 });
 
 Route::get('/product/{product}', ProductController::class)->name('product');
+
+Route::get('/cart', [CartController::class, 'show'])->name('cart');
+Route::get('/wishlist', [WishlistController::class, 'show'])->name('wishlist');
+
+Route::middleware('throttle:shopping')->group(function (): void {
+    Route::post('/cart/items/{product:id}', [CartController::class, 'add'])->name('cart.add');
+    // Lines may point to pieces removed from the catalogue since; they must still be removable.
+    Route::post('/cart/items/{product:id}/quantity', [CartController::class, 'update'])->withTrashed()->name('cart.update');
+    Route::post('/cart/items/{product:id}/remove', [CartController::class, 'remove'])->withTrashed()->name('cart.remove');
+    Route::post('/wishlist/{product:id}', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
+});
 
 Route::get('/track-order', [TrackOrderController::class, 'show'])->name('track-order');
 Route::post('/track-order', [TrackOrderController::class, 'lookup'])

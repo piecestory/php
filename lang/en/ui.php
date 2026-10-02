@@ -23,5 +23,6 @@ return [
     'optional' => 'Optional',
     'image_unavailable' => 'Image unavailable',
     'breadcrumbs' => 'Breadcrumb',
+    'update' => 'Update',
     'home' => 'Home',
 ];

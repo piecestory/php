@@ -14,6 +14,95 @@ Alpine.data('disclosure', () => ({
     },
 }));
 
+// Cart / wishlist forms: sent in the background when JavaScript is available; plain POST otherwise.
+// Publishes window events so counters, other buttons for the same piece and the toast stay in sync.
+Alpine.data('shopForm', () => ({
+    busy: false,
+    saved: false,
+    init() {
+        this.saved = this.$el.dataset.saved === 'true';
+    },
+    syncWishlist(event) {
+        if (String(event.detail.productId) === this.$el.dataset.product) this.saved = event.detail.saved;
+    },
+    async submit(event) {
+        const form = event.target;
+        if (this.busy) return;
+        this.busy = true;
+        try {
+            const response = await fetch(form.action, {
+                method: 'POST',
+                body: new FormData(form),
+                headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                credentials: 'same-origin',
+            });
+            if (response.status === 419 || response.status >= 500) {
+                form.submit();
+                return;
+            }
+            const data = await response.json();
+            if (data.cart) window.dispatchEvent(new CustomEvent('cart-updated', { detail: data.cart }));
+            if ('saved' in data) {
+                window.dispatchEvent(new CustomEvent('wishlist-updated', {
+                    detail: { count: data.count, saved: data.saved, productId: form.dataset.product },
+                }));
+            }
+            if (data.message) {
+                const kind = 'saved' in data ? 'wishlist' : 'cart';
+                window.dispatchEvent(new CustomEvent('notify', { detail: { message: data.message, ok: data.ok, kind } }));
+            }
+            if (form.dataset.reload === 'true' && data.ok) window.location.reload();
+        } catch {
+            form.submit();
+        } finally {
+            this.busy = false;
+        }
+    },
+}));
+
+// Header counters for cart and wishlist.
+Alpine.data('counter', () => ({
+    count: 0,
+    total: '',
+    init() {
+        this.count = Number(this.$el.dataset.count || 0);
+        this.total = this.$el.dataset.total || '';
+    },
+    hasItems() {
+        return this.count > 0;
+    },
+    updateCart(event) {
+        this.count = event.detail.count;
+        this.total = event.detail.total;
+    },
+    updateWishlist(event) {
+        this.count = event.detail.count;
+    },
+}));
+
+// Short confirmation message after cart / wishlist actions (announced to screen readers).
+Alpine.data('toast', () => ({
+    visible: false,
+    message: '',
+    ok: true,
+    kind: 'cart',
+    timer: null,
+    show(event) {
+        this.message = event.detail.message;
+        this.ok = event.detail.ok !== false;
+        this.kind = event.detail.kind || 'cart';
+        this.visible = true;
+        clearTimeout(this.timer);
+        this.timer = setTimeout(() => (this.visible = false), 4000);
+    },
+    hide() {
+        this.visible = false;
+    },
+    offerCart() {
+        return this.ok && this.kind === 'cart';
+    },
+}));
+
 // Product listing filters: a slide-in panel on mobile; on desktop every change applies at once.
 Alpine.data('catalogFilters', () => ({
     open: false,

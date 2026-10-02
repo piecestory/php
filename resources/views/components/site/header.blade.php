@@ -1,8 +1,14 @@
+@inject('cart', \App\Http\Support\CurrentCart::class)
+@inject('wishlist', \App\Http\Support\CurrentWishlist::class)
 @php
     use App\View\Navigation;
 
     $menu = Navigation::main();
     $help = Navigation::utility();
+    // Wishlist lives in the mobile menu: the phone header keeps only search, cart and account.
+    $extra = \App\Support\Localization\LocalizedRoute::has('wishlist')
+        ? [['label' => __('wishlist.title'), 'url' => localized_route('wishlist'), 'active' => request()->routeIs('wishlist', 'en.wishlist')]]
+        : [];
     $accountUrl = auth()->check() && \App\Support\Localization\LocalizedRoute::has('account')
         ? localized_route('account')
         : (auth()->guest() ? localized_route('login') : null);
@@ -54,6 +60,30 @@
                     <x-ui.icon name="search" class="size-[1.35rem]" /><span class="sr-only">{{ __('catalog.search.label') }}</span>
                 </a>
             @endif
+            @if (\App\Support\Localization\LocalizedRoute::has('wishlist'))
+                <a href="{{ localized_route('wishlist') }}" x-data="counter" data-count="{{ $wishlist->count() }}" x-on:wishlist-updated.window="updateWishlist"
+                    class="relative hidden size-11 place-items-center rounded-xs text-ink transition-colors hover:bg-linen hover:text-bronze sm:grid">
+                    <x-ui.icon name="heart" class="size-[1.35rem]" />
+                    <span x-show="hasItems" x-text="count" @if ($wishlist->count() === 0) x-cloak @endif
+                        class="numerals absolute end-1 top-1 grid h-4 min-w-4 place-items-center rounded-full bg-bronze px-1 text-[0.625rem] font-semibold text-white">{{ $wishlist->count() }}</span>
+                    <span class="sr-only">{{ __('wishlist.title') }}</span>
+                </a>
+            @endif
+            @if (\App\Support\Localization\LocalizedRoute::has('cart'))
+                @php($cartSummary = $cart->summary())
+                <a href="{{ localized_route('cart') }}" x-data="counter" data-count="{{ $cartSummary->count }}"
+                    data-total="{{ \App\Support\Money\Money::amount($cartSummary->total) }} {{ \App\Support\Money\Money::currency() }}"
+                    x-on:cart-updated.window="updateCart"
+                    class="relative flex h-11 items-center gap-2 rounded-xs px-2 text-ink transition-colors hover:bg-linen hover:text-bronze">
+                    <span class="relative">
+                        <x-ui.icon name="shopping-bag" class="size-[1.35rem]" />
+                        <span x-show="hasItems" x-text="count" @if ($cartSummary->count === 0) x-cloak @endif
+                            class="numerals absolute -end-2 -top-2 grid h-4 min-w-4 place-items-center rounded-full bg-ink px-1 text-[0.625rem] font-semibold text-ivory">{{ $cartSummary->count }}</span>
+                    </span>
+                    <span x-text="total" class="numerals hidden text-sm font-medium lg:inline">{{ \App\Support\Money\Money::amount($cartSummary->total) }} {{ \App\Support\Money\Money::currency() }}</span>
+                    <span class="sr-only">{{ __('cart.title') }}</span>
+                </a>
+            @endif
             @if ($accountUrl)
                 <a href="{{ $accountUrl }}" class="grid size-11 place-items-center rounded-xs text-ink transition-colors hover:bg-linen hover:text-bronze">
                     <x-ui.icon name="user" class="size-[1.35rem]" />
@@ -83,7 +113,7 @@
                 </button>
             </div>
             <ul class="flex-1 overflow-y-auto px-4 py-3">
-                @foreach ([...$menu, ...$help] as $item)
+                @foreach ([...$menu, ...$help, ...$extra] as $item)
                     <li class="border-b border-line/70 last:border-0">
                         <a href="{{ $item['url'] }}" @if ($item['active']) aria-current="page" @endif
                             @class(['flex items-center justify-between py-3.5 text-base', 'text-bronze' => $item['active']])>

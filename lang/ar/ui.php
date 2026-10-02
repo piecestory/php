@@ -23,5 +23,6 @@ return [
     'optional' => 'اختياري',
     'image_unavailable' => 'الصورة غير متوفرة',
     'breadcrumbs' => 'مسار التنقل',
+    'update' => 'تحديث',
     'home' => 'الرئيسية',
 ];

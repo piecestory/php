@@ -94,6 +94,12 @@ Renditions are width-bound and never upscaled; `RecordImageDimensions` stores ea
 ### ADR-021 — Sample catalogue
 `DemoCatalogSeeder` (never part of `DatabaseSeeder`, refuses to run in production) creates 24 pieces with `DEMO-` SKUs and sample descriptions for staging. `php artisan catalog:remove-demo` deletes them and their images before launch.
 
+### ADR-022 — Cart and wishlist
+- Member: one cart row per user. Guest: a cart row found by a random 40-char token in an encrypted, HTTP-only cookie (`ps_cart`), created only when the first piece is added (refusals never create carts). Guest carts expire after `store.guest_cart_days` of inactivity and are pruned daily.
+- Prices are never stored in the cart; `CartSummary` reads the live price and lists pieces that became unavailable separately (excluded from the total). VAT is extracted from VAT-inclusive prices (`store.vat_rate`).
+- Wishlist: database for members, session for guests. At sign-in (`Login` event) the guest cart and wishlist merge into the account, quantities capped at stock.
+- Buttons are real forms (work without JavaScript); `shopForm` sends them in the background and publishes `cart-updated` / `wishlist-updated` / `notify` window events for the header counters and the toast. Forms are never nested: the catalog filter form wraps only the sidebar.
+
 ## Directory map
 
 ```

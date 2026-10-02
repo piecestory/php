@@ -18,6 +18,8 @@ use App\Domain\Orders\Models\Order;
 use App\Domain\PersonalFinder\Models\FinderRequest;
 use App\Domain\Settings\StoreSettings;
 use App\Domain\Shared\Listeners\RecordImageDimensions;
+use App\Http\Support\CurrentCart;
+use App\Http\Support\CurrentWishlist;
 use Carbon\CarbonImmutable;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -38,6 +40,10 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(StoreSettings::class);
+
+        // Per-request shopping state (reset between requests and tests).
+        $this->app->scoped(CurrentCart::class);
+        $this->app->scoped(CurrentWishlist::class);
 
         // Real providers are selected from admin settings once configured (Phase 11).
         $this->app->bind(SmsGateway::class, LogSmsGateway::class);
@@ -94,6 +100,9 @@ class AppServiceProvider extends ServiceProvider
         // Sign-up and password forms: per form and per visitor.
         RateLimiter::for('auth-forms', fn (Request $request) => Limit::perMinute(5)
             ->by($request->route()?->getName().'|'.$request->ip()));
+
+        // Cart and wishlist changes: generous for people, a ceiling for scripts.
+        RateLimiter::for('shopping', fn (Request $request) => Limit::perMinute(60)->by($request->ip()));
 
         // Order tracking and code checks: blocks guessing order numbers or codes.
         RateLimiter::for('lookups', fn (Request $request) => Limit::perMinute(10)

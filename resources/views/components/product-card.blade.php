@@ -9,6 +9,7 @@
     'wishlisted' => false,
     'purchasable' => true,
     'onRequest' => false,
+    'productId' => null,
 ])
 
 <article {{ $attributes->class(['group relative flex flex-col']) }}>
@@ -27,21 +28,11 @@
             </div>
         @endif
 
-        {{-- Actions appear once the wishlist and cart modules exist (Phase 8). --}}
-        @if (\App\Support\Localization\LocalizedRoute::has('wishlist'))
-            <button type="button" aria-pressed="{{ $wishlisted ? 'true' : 'false' }}"
-                class="absolute end-2.5 top-2.5 grid size-9 place-items-center rounded-full bg-paper/90 text-ink shadow-card backdrop-blur-sm transition-colors hover:text-bronze"
-                aria-label="{{ $wishlisted ? __('ui.remove_from_wishlist') : __('ui.add_to_wishlist') }}: {{ $name }}">
-                <x-ui.icon name="heart" @class(['size-[1.1rem]', 'fill-bronze text-bronze' => $wishlisted]) />
-            </button>
-        @endif
-
-        @if ($purchasable && \App\Support\Localization\LocalizedRoute::has('cart'))
-            <button type="button"
-                class="absolute start-2.5 bottom-2.5 grid size-9 place-items-center rounded-full bg-paper/90 text-ink shadow-card backdrop-blur-sm transition-colors hover:bg-ink hover:text-ivory"
-                aria-label="{{ __('ui.add_to_cart') }}: {{ $name }}">
-                <x-ui.icon name="shopping-bag" class="size-[1.1rem]" />
-            </button>
+        @if ($productId)
+            <x-shop.wishlist-button :product-id="$productId" :$name :saved="$wishlisted" class="absolute end-2.5 top-2.5" />
+            @if ($purchasable)
+                <x-shop.add-to-cart :product-id="$productId" :$name class="absolute start-2.5 bottom-2.5" />
+            @endif
         @endif
     </div>
 

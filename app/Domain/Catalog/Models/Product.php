@@ -98,6 +98,15 @@ class Product extends Model implements HasMedia
             && ($this->sale_ends_at === null || $this->sale_ends_at->gt($at));
     }
 
+    /** Can be added to a cart right now: visible, marked available and in stock. */
+    public function isPurchasable(): bool
+    {
+        return ! $this->trashed()
+            && $this->isPublished()
+            && $this->availability === ProductAvailability::Available
+            && $this->stock_quantity > 0;
+    }
+
     /** The price the customer pays right now (VAT inclusive). */
     public function effectivePrice(?CarbonInterface $at = null): string
     {

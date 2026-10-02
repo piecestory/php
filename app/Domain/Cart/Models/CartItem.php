@@ -12,6 +12,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable(['product_id', 'quantity'])]
 class CartItem extends Model
 {
+    /** @var list<string> */
+    protected $touches = ['cart'];
+
     protected function casts(): array
     {
         return ['quantity' => 'integer'];
@@ -23,9 +26,13 @@ class CartItem extends Model
         return $this->belongsTo(Cart::class);
     }
 
-    /** @return BelongsTo<Product, $this> */
+    /**
+     * Includes removed products so the cart can explain why a line is no longer available.
+     *
+     * @return BelongsTo<Product, $this>
+     */
     public function product(): BelongsTo
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsTo(Product::class)->withTrashed();
     }
 }
