@@ -22,10 +22,14 @@ final class ResponsiveImage
             return null;
         }
 
+        // Renditions are never upscaled: a rendition of a smaller original is only as wide as the original.
+        $originalWidth = (int) $media->getCustomProperty('width', PHP_INT_MAX);
+
         $candidates = [];
         foreach ($conversions as $name => $width) {
             if ($media->hasGeneratedConversion($name)) {
-                $candidates[] = $media->getUrl($name).' '.$width.'w';
+                $actual = min($width, $originalWidth);
+                $candidates[$actual] ??= $media->getUrl($name).' '.$actual.'w';
             }
         }
 

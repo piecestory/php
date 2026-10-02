@@ -116,7 +116,7 @@
                     <li>
                         <x-product-card :name="$card['name']" :href="$card['href']" :price="$card['price']"
                             :compare-at="$card['compareAt']" :image="$card['image']" :srcset="$card['srcset']" :badges="$card['badges']"
-                            :purchasable="$card['purchasable']" />
+                            :purchasable="$card['purchasable']" :on-request="$card['onRequest']" />
                     </li>
                 @endforeach
             </ul>

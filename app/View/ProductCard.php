@@ -12,7 +12,7 @@ use App\Support\Localization\LocalizedRoute;
 final class ProductCard
 {
     /**
-     * @return array{name: string, href: ?string, price: string, compareAt: ?string, image: ?string, srcset: ?string, badges: array<string, string>, purchasable: bool}
+     * @return array{name: string, href: ?string, price: string, compareAt: ?string, image: ?string, srcset: ?string, badges: array<string, string>, purchasable: bool, onRequest: bool}
      */
     public static function from(Product $product): array
     {
@@ -28,6 +28,7 @@ final class ProductCard
             'srcset' => $image['srcset'] ?? null,
             'badges' => self::badges($product, $onSale),
             'purchasable' => $product->availability === ProductAvailability::Available && $product->stock_quantity > 0,
+            'onRequest' => $product->availability === ProductAvailability::OnRequest,
         ];
     }
 

@@ -85,6 +85,9 @@ Catalog models use `HasLocalizedSlug`: route binding and URL generation use `slu
 ### ADR-019 — Images
 `HasWebpRenditions` (wraps the media library) creates WebP renditions per model (`IMAGE_SIZES`) in the background queue; views get `src`/`srcset` through `ResponsiveImage`, which serves the original until renditions exist. Production needs `php artisan storage:link` and the cron-driven queue for renditions to appear.
 
+### ADR-019b — Exact srcset widths
+Renditions are width-bound and never upscaled;  stores each upload's pixel size so srcset descriptors state the real width. iPhone HEIC files are not supported by GD: the admin upload must accept JPEG/PNG/WebP (browsers convert HEIC on upload) — see Phase 11.
+
 ### ADR-020 — Catalog queries
 `BrowseProducts` builds every listing (store, category, collection, search) from a `CatalogFilters` value object. Price filters and sorting use the price actually charged (active sale price), mirrored in SQL and in `Product::isOnSale()`. Search: normalized words with Arabic prefixes stripped, InnoDB boolean FULLTEXT with prefix matching; words shorter than 3 letters fall back to `LIKE`. Invalid query-string values are dropped, not shown as errors, so shared links never break.
 

@@ -17,6 +17,7 @@ use App\Domain\Notifications\Sms\SmsGateway;
 use App\Domain\Orders\Models\Order;
 use App\Domain\PersonalFinder\Models\FinderRequest;
 use App\Domain\Settings\StoreSettings;
+use App\Domain\Shared\Listeners\RecordImageDimensions;
 use Carbon\CarbonImmutable;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -25,10 +26,12 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use Spatie\MediaLibrary\MediaCollections\Events\MediaHasBeenAddedEvent;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -82,6 +85,8 @@ class AppServiceProvider extends ServiceProvider
         ));
 
         $this->configureRateLimiting();
+
+        Event::listen(MediaHasBeenAddedEvent::class, RecordImageDimensions::class);
     }
 
     private function configureRateLimiting(): void

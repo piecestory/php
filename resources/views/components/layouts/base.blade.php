@@ -1,4 +1,4 @@
-@props(['title' => null, 'description' => null, 'noindex' => false])
+@props(['title' => null, 'description' => null, 'noindex' => false, 'image' => null, 'ogType' => 'website'])
 
 @php
     use App\Support\Localization\Locales;
@@ -29,7 +29,18 @@
         <link rel="alternate" hreflang="x-default" href="{{ LocalizedRoute::switchTo(Locales::PRIMARY) }}">
     @endif
     <meta property="og:site_name" content="{{ __('ui.brand') }}">
+    <meta property="og:type" content="{{ $ogType }}">
     <meta property="og:title" content="{{ $pageTitle }}">
+    @if ($named)
+        <meta property="og:url" content="{{ url()->current() }}">
+    @endif
+    @if ($description)
+        <meta property="og:description" content="{{ $description }}">
+    @endif
+    @if ($image)
+        <meta property="og:image" content="{{ $image }}">
+        <meta name="twitter:card" content="summary_large_image">
+    @endif
     <meta property="og:locale" content="{{ $locale === 'ar' ? 'ar_SA' : 'en_US' }}">
     <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="48x48">
     <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">

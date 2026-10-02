@@ -17,11 +17,16 @@ trait HasWebpRenditions
 {
     use InteractsWithMedia;
 
+    /** Guards against extreme panoramas/strips only; normal photos are limited by width. */
+    private const int MAX_RENDITION_HEIGHT = 4000;
+
     public function registerMediaConversions(?Media $media = null): void
     {
+        // Width-bound so each rendition is exactly as wide as its srcset descriptor says
+        // (never upscaled: smaller originals keep their own size).
         foreach (static::IMAGE_SIZES as $name => $width) {
             $this->addMediaConversion($name)
-                ->fit(Fit::Max, $width, $width)
+                ->fit(Fit::Max, $width, self::MAX_RENDITION_HEIGHT)
                 ->format('webp')
                 ->quality(82);
         }

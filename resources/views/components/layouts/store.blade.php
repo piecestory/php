@@ -1,6 +1,10 @@
-@props(['title' => null, 'description' => null, 'noindex' => false])
+@props(['title' => null, 'description' => null, 'noindex' => false, 'image' => null, 'ogType' => 'website'])
 
-<x-layouts.base :$title :$description :$noindex class="flex flex-col">
+<x-layouts.base :$title :$description :$noindex :$image :og-type="$ogType" class="flex flex-col">
+    @isset($head)
+        <x-slot:head>{{ $head }}</x-slot:head>
+    @endisset
+
     <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-50 focus:rounded-xs focus:bg-ink focus:px-4 focus:py-2 focus:text-ivory">
         {{ __('site.skip_to_content') }}
     </a>

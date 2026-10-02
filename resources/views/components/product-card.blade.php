@@ -8,6 +8,7 @@
     'badges' => [],
     'wishlisted' => false,
     'purchasable' => true,
+    'onRequest' => false,
 ])
 
 <article {{ $attributes->class(['group relative flex flex-col']) }}>
@@ -52,6 +53,10 @@
                 <span class="line-clamp-2">{{ $name }}</span>
             @endif
         </h3>
-        <x-ui.price :amount="$price" :compare-at="$compareAt" class="justify-center" />
+        @if ($onRequest)
+            <p class="text-sm font-medium text-bronze-deep">{{ __('ui.badge.on_request') }}</p>
+        @else
+            <x-ui.price :amount="$price" :compare-at="$compareAt" class="justify-center" />
+        @endif
     </div>
 </article>
