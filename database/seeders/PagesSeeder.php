@@ -84,7 +84,10 @@ class PagesSeeder extends Seeder
                     بعد انتهاء مدة الحجز نذكّرك بإكمال الدفع لمدة 3 أيام، ثم يُلغى الحجز تلقائيًا وتعود القطعة للعرض.
 
                     ## بيع قطعك عن طريقنا
-                    لديك قطعة مميزة تريد بيعها؟ تواصل معنا، ونراجع القطعة ونرد عليك بالقبول أو الاعتذار.
+                    لديك قطعة مميزة تريد بيعها؟ أرسل لنا تفاصيلها وصورها من صفحة [بِع قطعتك عن طريقنا](/sell-with-us)، ونراجعها ونرد عليك بالموافقة أو الاعتذار.
+
+                    ## الباحث الشخصي
+                    تبحث عن قطعة بعينها؟ صِفها لنا من صفحة [الباحث الشخصي](/personal-finder) ونبحث عنها لك.
                     MD,
                 'body_en' => <<<'MD'
                     ## Delivery within Saudi Arabia
@@ -101,7 +104,10 @@ class PagesSeeder extends Seeder
                     After the reservation period we remind you to complete payment for 3 more days; then the reservation is cancelled automatically and the piece goes back on sale.
 
                     ## Sell your pieces through us
-                    Have a special piece you would like to sell? Contact us: we review the piece and come back to you with our decision.
+                    Have a special piece you would like to sell? Send us its details and photos on the [Sell with us](/en/sell-with-us) page; we review it and come back to you with our decision.
+
+                    ## Personal finder
+                    Looking for a particular piece? Describe it on the [Personal finder](/en/personal-finder) page and we will search for it.
                     MD,
             ],
 

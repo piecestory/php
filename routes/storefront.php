@@ -14,12 +14,14 @@ use App\Http\Controllers\Storefront\BlogController;
 use App\Http\Controllers\Storefront\CartController;
 use App\Http\Controllers\Storefront\CatalogController;
 use App\Http\Controllers\Storefront\CheckoutController;
+use App\Http\Controllers\Storefront\ConsignmentController;
 use App\Http\Controllers\Storefront\ContactController;
 use App\Http\Controllers\Storefront\FaqController;
 use App\Http\Controllers\Storefront\HomeController;
 use App\Http\Controllers\Storefront\OrderController;
 use App\Http\Controllers\Storefront\PageController;
 use App\Http\Controllers\Storefront\PaymentController;
+use App\Http\Controllers\Storefront\PersonalFinderController;
 use App\Http\Controllers\Storefront\ProductController;
 use App\Http\Controllers\Storefront\TrackOrderController;
 use App\Http\Controllers\Storefront\WishlistController;
@@ -40,6 +42,12 @@ foreach (PageKey::cases() as $pageKey) {
 
 Route::get('/blog', [BlogController::class, 'index'])->name('blog');
 Route::get('/blog/{post}', [BlogController::class, 'show'])->name('blog.post');
+
+// Customer requests to the team (no account needed): find a piece for me / sell my piece.
+Route::get('/personal-finder', [PersonalFinderController::class, 'show'])->name('personal-finder');
+Route::post('/personal-finder', [PersonalFinderController::class, 'store'])->middleware('throttle:service-requests')->name('personal-finder.store');
+Route::get('/sell-with-us', [ConsignmentController::class, 'show'])->name('sell-with-us');
+Route::post('/sell-with-us', [ConsignmentController::class, 'store'])->middleware('throttle:service-requests')->name('sell-with-us.store');
 
 Route::get('/contact', [ContactController::class, 'show'])->name('contact');
 Route::post('/contact', [ContactController::class, 'store'])->middleware('throttle:contact')->name('contact.store');
@@ -114,6 +122,7 @@ Route::post('/logout', [LoginController::class, 'destroy'])->middleware('auth')-
 Route::middleware('auth')->prefix('account')->name('account')->group(function (): void {
     Route::get('/', [AccountController::class, 'overview'])->name('');
     Route::get('/orders', [AccountController::class, 'orders'])->name('.orders');
+    Route::get('/requests', [AccountController::class, 'requests'])->name('.requests');
 
     Route::get('/addresses', [AddressController::class, 'index'])->name('.addresses');
     Route::get('/addresses/new', [AddressController::class, 'create'])->name('.addresses.create');

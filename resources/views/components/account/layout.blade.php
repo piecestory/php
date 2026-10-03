@@ -8,6 +8,7 @@
     $sections = [
         ['route' => 'account', 'label' => __('account.nav.overview'), 'icon' => 'user'],
         ['route' => 'account.orders', 'label' => __('account.nav.orders'), 'icon' => 'package-check'],
+        ['route' => 'account.requests', 'label' => __('account.nav.requests'), 'icon' => 'search'],
         ['route' => 'account.addresses', 'label' => __('account.nav.addresses'), 'icon' => 'map-pin'],
         ['route' => 'wishlist', 'label' => __('account.nav.wishlist'), 'icon' => 'heart'],
         ['route' => 'account.profile', 'label' => __('account.nav.profile'), 'icon' => 'shield-check'],

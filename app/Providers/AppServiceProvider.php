@@ -9,6 +9,7 @@ use App\Domain\Auctions\Models\AuctionLot;
 use App\Domain\Catalog\Models\Category;
 use App\Domain\Catalog\Models\Collection;
 use App\Domain\Catalog\Models\Product;
+use App\Domain\Consignment\Models\ConsignmentRequest;
 use App\Domain\Content\ContentAvailability;
 use App\Domain\Content\Models\Faq;
 use App\Domain\Content\Models\HeroSlide;
@@ -86,6 +87,7 @@ class AppServiceProvider extends ServiceProvider
             'collection' => Collection::class,
             'order' => Order::class,
             'finder_request' => FinderRequest::class,
+            'consignment_request' => ConsignmentRequest::class,
             'auction' => Auction::class,
             'auction_lot' => AuctionLot::class,
             'post' => Post::class,
@@ -130,6 +132,9 @@ class AppServiceProvider extends ServiceProvider
 
         // Contact form: a few messages per visitor every ten minutes is plenty for people, useless for spam.
         RateLimiter::for('contact', fn (Request $request) => Limit::perMinutes(10, 3)->by($request->ip()));
+
+        // Personal Finder and "sell with us" (with photo uploads): a handful per visitor per hour.
+        RateLimiter::for('service-requests', fn (Request $request) => Limit::perHour(5)->by($request->ip()));
 
         // Placing orders and starting payments.
         RateLimiter::for('checkout', fn (Request $request) => Limit::perMinute(10)->by($request->ip()));

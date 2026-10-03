@@ -12,6 +12,7 @@ enum Permission: string
     case ManageOrders = 'manage_orders';
     case ManageCustomers = 'manage_customers';
     case ManageFinderRequests = 'manage_finder_requests';
+    case ManageConsignments = 'manage_consignments';
     case ManageAuctions = 'manage_auctions';
     case ManageContent = 'manage_content';
     case ManageSettings = 'manage_settings';

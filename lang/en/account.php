@@ -8,6 +8,7 @@ return [
         'label' => 'Account sections',
         'overview' => 'Overview',
         'orders' => 'My orders',
+        'requests' => 'Finder & sell requests',
         'addresses' => 'My addresses',
         'wishlist' => 'Wishlist',
         'profile' => 'My details',
@@ -36,6 +37,14 @@ return [
         'total' => 'Total',
         'items' => '{1} 1 piece|[2,*] :count pieces',
         'view' => 'Details',
+    ],
+    'requests' => [
+        'empty' => 'No requests yet',
+        'empty_text' => 'Ask us to find a piece, or offer us a piece to sell.',
+        'finder' => 'Personal finder requests',
+        'consignment' => 'Pieces offered for sale',
+        'new_finder' => 'New finder request',
+        'new_consignment' => 'Offer a piece',
     ],
     'addresses' => [
         'empty' => 'No saved addresses',

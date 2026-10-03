@@ -18,13 +18,13 @@ enum Role: string
             self::Admin => Permission::cases(),
             self::StoreManager => [
                 Permission::AccessAdmin, Permission::ManageCatalog, Permission::ManageInventory,
-                Permission::ManageOrders, Permission::ManageCustomers, Permission::ManageFinderRequests,
+                Permission::ManageOrders, Permission::ManageCustomers, Permission::ManageFinderRequests, Permission::ManageConsignments,
                 Permission::ManageAuctions, Permission::ManageContent,
             ],
             self::ContentEditor => [Permission::AccessAdmin, Permission::ManageCatalog, Permission::ManageContent],
             self::CustomerService => [
                 Permission::AccessAdmin, Permission::ManageOrders, Permission::ManageCustomers,
-                Permission::ManageFinderRequests,
+                Permission::ManageFinderRequests, Permission::ManageConsignments,
             ],
         };
     }

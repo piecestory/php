@@ -18,7 +18,7 @@ final class Navigation
 
     private const array UTILITY = ['faq', 'track-order'];
 
-    private const array HELP = ['faq', 'track-order', 'contact', 'shipping-policy', 'returns-policy', 'privacy', 'terms'];
+    private const array HELP = ['faq', 'track-order', 'personal-finder', 'sell-with-us', 'contact', 'shipping-policy', 'returns-policy', 'privacy', 'terms'];
 
     /** @return list<array{label: string, url: string, active: bool}> */
     public static function utility(): array

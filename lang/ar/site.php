@@ -25,6 +25,8 @@ return [
         'contact' => 'تواصل معنا',
         'faq' => 'الأسئلة الشائعة',
         'track_order' => 'تتبع الطلب',
+        'personal_finder' => 'الباحث الشخصي',
+        'sell_with_us' => 'بِع قطعتك عن طريقنا',
         'shipping_policy' => 'سياسة الشحن والاستلام',
         'returns_policy' => 'سياسة الإرجاع والاستبدال',
         'privacy' => 'سياسة الخصوصية',

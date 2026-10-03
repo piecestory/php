@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Admin\PrivateMediaController;
 use App\Http\Controllers\SandboxPaymentController;
 use App\Http\Controllers\Storefront\PaymentController;
 use App\Support\Localization\Locales;
@@ -24,6 +25,12 @@ foreach (Locales::SUPPORTED as $locale) {
 Route::post('/payments/{provider}/webhook', [PaymentController::class, 'webhook'])
     ->middleware('throttle:webhooks')
     ->name('payments.webhook');
+
+// Private request photos, for staff with the matching permission only.
+Route::get('/admin/private-media/{media}', PrivateMediaController::class)
+    ->middleware('auth')
+    ->whereNumber('media')
+    ->name('admin.private-media');
 
 // Internal test payment page. Never registered in production.
 if (! app()->isProduction() && config('payments.sandbox.enabled')) {

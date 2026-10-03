@@ -25,6 +25,8 @@ return [
         'contact' => 'Contact',
         'faq' => 'FAQ',
         'track_order' => 'Track order',
+        'personal_finder' => 'Personal finder',
+        'sell_with_us' => 'Sell with us',
         'shipping_policy' => 'Shipping & pickup',
         'returns_policy' => 'Returns & exchanges',
         'privacy' => 'Privacy policy',

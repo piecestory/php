@@ -35,7 +35,8 @@ return [
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app/private'),
-            'serve' => true,
+            // Private files (request photos) are never served by URL; staff open them through an authorised admin route.
+            'serve' => false,
             'throw' => false,
             'report' => false,
         ],

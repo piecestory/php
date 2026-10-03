@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Account;
 
+use App\Domain\Consignment\Models\ConsignmentRequest;
 use App\Domain\Identity\Models\User;
 use App\Domain\Orders\Enums\OrderStatus;
+use App\Domain\PersonalFinder\Models\FinderRequest;
 use App\Http\Controllers\Controller;
 use App\Http\Support\CurrentWishlist;
 use Illuminate\Contracts\View\View;
@@ -40,6 +42,17 @@ class AccountController extends Controller
     {
         return view('account.orders', [
             'orders' => self::customer($request)->orders()->withCount('items')->latest('id')->paginate(self::ORDERS_PER_PAGE),
+        ]);
+    }
+
+    /** Personal Finder and "sell with us" requests sent while signed in. */
+    public function requests(Request $request): View
+    {
+        $user = self::customer($request);
+
+        return view('account.requests', [
+            'finderRequests' => FinderRequest::query()->where('user_id', $user->id)->latest('id')->get(),
+            'consignments' => ConsignmentRequest::query()->where('user_id', $user->id)->latest('id')->get(),
         ]);
     }
 

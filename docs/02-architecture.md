@@ -145,6 +145,14 @@ Renditions are width-bound and never upscaled; `RecordImageDimensions` stores ea
 - Starting content is seeded only from the owner's recorded decisions and never overwrites edited pages; privacy and terms are seeded as unpublished drafts for the owner's (legal) review.
 - Contact form: mobile or email required for a reply, honeypot field, 3 messages / 10 min per IP; messages land in the admin (customer-service permission) and are forwarded to the store mailbox with reply-to set to the visitor.
 
+### ADR-029 — Personal Finder and "sell with us"
+- Both are `ServiceRequest`s (contract + `IsServiceRequest` trait): reference number (`PF-` / `CS-` + year + id), contact details, language; `StoreServiceRequest` saves them with their photos, confirms to the customer (SMS + email) and alerts the store mailbox. No account needed; signed-in customers see their requests under My account → requests.
+- Photos: JPEG/PNG/WebP detected from file content (not the name), 10 MB each, up to 6 (finder, optional) / 1–8 (consignment). Stored on the private `local` disk under random names (customer file names can contain personal details). The private disk is never served by URL (`serve => false`); staff open photos only through `/admin/private-media/{id}`, which checks the permission for that kind of request and 404s anything else (including public catalogue media).
+- Finder journey (`FinderRequestStatus::allowedTransitions`): new → reviewing → sourcing → offer sent → closed; an offer can return to sourcing; any open stage can be cancelled. Sending an offer requires a message to the customer (emailed, kept in the history).
+- Consignment: new → reviewing → approved / declined, always with a note to the customer. New permission `manage_consignments` (admin, store manager, customer service) — re-run `RolesAndPermissionsSeeder` on deploy.
+- Commercial terms after approval (commission, how the piece reaches the showroom) are not modelled: the approval note and a call from the team carry them until the owner decides them.
+- Submissions are rate-limited (5 per hour per IP) and protected by a honeypot field.
+
 ## Directory map
 
 ```

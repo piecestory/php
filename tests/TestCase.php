@@ -16,6 +16,7 @@ abstract class TestCase extends BaseTestCase
 
         // Uploaded media never touches the real storage folder during tests.
         Storage::fake('public');
+        Storage::fake('local');
 
         // The storefront's fetch() calls send cookies (credentials: 'same-origin'); JSON test requests must too.
         $this->withCredentials();

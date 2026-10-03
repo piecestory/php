@@ -8,6 +8,8 @@ use App\Domain\Catalog\Models\Category;
 use App\Domain\Identity\Models\User;
 use App\Domain\PersonalFinder\Enums\FinderRequestStatus;
 use App\Domain\Shared\Concerns\HasStatusHistory;
+use App\Domain\Shared\Concerns\IsServiceRequest;
+use App\Domain\Shared\Contracts\ServiceRequest;
 use Database\Factories\FinderRequestFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
@@ -22,10 +24,10 @@ use Spatie\MediaLibrary\InteractsWithMedia;
     'budget_min', 'budget_max', 'preferences', 'assigned_to', 'admin_notes', 'locale',
 ])]
 #[UseFactory(FinderRequestFactory::class)]
-class FinderRequest extends Model implements HasMedia
+class FinderRequest extends Model implements HasMedia, ServiceRequest
 {
     /** @use HasFactory<FinderRequestFactory> */
-    use HasFactory, HasStatusHistory, InteractsWithMedia;
+    use HasFactory, HasStatusHistory, InteractsWithMedia, IsServiceRequest;
 
     /** Customer reference photos; stored on a private disk. */
     public const string MEDIA_REFERENCES = 'references';
@@ -39,6 +41,16 @@ class FinderRequest extends Model implements HasMedia
             'budget_min' => 'decimal:2',
             'budget_max' => 'decimal:2',
         ];
+    }
+
+    public function requestKind(): string
+    {
+        return 'finder';
+    }
+
+    public static function referencePrefix(): string
+    {
+        return 'PF';
     }
 
     public function registerMediaCollections(): void
