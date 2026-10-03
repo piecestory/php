@@ -15,3 +15,5 @@ Luxury antiques e-commerce (Arabic-first RTL + English LTR). Laravel 13 / Livewi
 - After changing Tailwind classes or JS run `npm run build` (assets are compiled; the dev server serves `public/build`).
 - Staff panel at /admin (Filament). Create an admin with `php artisan admin:create`. Filament assets: `php artisan filament:upgrade` (runs on composer install).
 - Local preview: `.claude/launch.json` → "app" (http://localhost:8000). Arabic at `/`, English at `/en`.
+- Browser tests: `npm run test:e2e` (Playwright on installed Edge) against the running local site; they create "E2E" orders, so never point them at production.
+- Releases: GitHub Actions → Deploy (staging, then production); server layout, cron and launch checklist in `docs/03-deployment.md`. Backups: `php artisan backup:run` (locally set `BACKUP_MYSQLDUMP=C:\xampp\mysql\bin\mysqldump.exe`).

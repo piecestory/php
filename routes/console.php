@@ -5,6 +5,8 @@ declare(strict_types=1);
 use App\Domain\Cart\Models\Cart;
 use App\Domain\Orders\Actions\ExpireOrderHolds;
 use App\Domain\Orders\Actions\SendReservationReminders;
+use App\Infrastructure\Alerts\OpsAlert;
+use App\Infrastructure\Backups\SiteBackup;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
 
@@ -31,3 +33,14 @@ Schedule::command('orders:remind-reservations')->dailyAt('13:00');
 
 // Abandoned guest carts.
 Schedule::command('model:prune', ['--model' => [Cart::class]])->daily();
+
+Artisan::command('backup:run', function (): int {
+    $set = SiteBackup::fromConfig()->run();
+    $this->info('Database: '.basename($set['database']).' · Files: '.basename($set['files'])." · Old sets removed: {$set['removed']}");
+
+    return 0;
+})->purpose('Back up the database and uploaded files (kept 14 days in storage/app/backups)');
+
+// Nightly backup, outside opening hours (12 pm – 12 am); a failure emails the team.
+Schedule::command('backup:run')->dailyAt('04:30')->withoutOverlapping()
+    ->onFailure(fn () => OpsAlert::send('Nightly backup failed', 'The backup:run command failed at '.now()->toDateTimeString().'. See storage/logs.'));

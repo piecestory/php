@@ -69,6 +69,9 @@ return [
 
     'timezone' => env('APP_TIMEZONE', 'Asia/Riyadh'),
 
+    // Who is emailed about server errors and failed backups. Empty: the store email from the settings.
+    'alert_email' => env('ALERT_EMAIL'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Locale Configuration

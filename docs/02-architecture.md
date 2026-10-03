@@ -192,6 +192,12 @@ Renditions are width-bound and never upscaled; `RecordImageDimensions` stores ea
 - The browser tests create real orders (named "E2E …") in the database they run against: run them only on local or staging data, never production.
 - Brand bronze was deepened from #9a6a36 to #8a5d2c after axe found 4.2:1 contrast for bronze text on ivory; it now meets 4.5:1 on every light surface and for white text on bronze buttons.
 
+### ADR-034 — Releases, backups and alerts
+- Releases: `.github/workflows/deploy.yml`, started by hand per environment (staging / production, the latter with a required approval). It reuses `ci.yml` (lint, Larastan, audit, tests on MySQL 8.4 and MariaDB 10.11) as a gate, builds production dependencies and assets on GitHub (shared hosting has no Node), uploads a tarball over SSH and runs `deploy/release.sh`: shared `.env` + `storage`, maintenance on the live version, `migrate --force`, idempotent role/settings seeders, `optimize`, atomic `current` symlink switch, keep 3 releases. A failure keeps the previous version live (ERR trap); the health check after the switch (`/up` and the home page) rolls back automatically via `deploy/rollback.sh`.
+- Server layout and one-time setup, cron entry, first install and launch checklist: `docs/03-deployment.md`. Settings template: `.env.production.example` (placeholders only).
+- Backups: `backup:run` (`App\Infrastructure\Backups\SiteBackup`) nightly at 04:30 — gzipped `mysqldump` (single transaction; password passed through `MYSQL_PWD`, never on the command line) + zip of public and private uploads, in `storage/app/backups` (never served), 14-day retention; Hostinger's daily backups are the second copy. Verified locally: a complete dump of all 51 tables.
+- Alerts (`App\Infrastructure\Alerts\OpsAlert`): on the live site, reported server errors and a failed backup email `ALERT_EMAIL` (default: the store email), at most once per subject per 30 minutes, with the error type, short message and address only — never stack traces or data. Visitor mistakes (404, validation) are not reported, so they never alert.
+
 ## Directory map
 
 ```

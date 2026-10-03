@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetLocale;
+use App\Infrastructure\Alerts\OpsAlert;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -34,4 +35,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
+
+        // On the live site, real errors (not 404s or form mistakes, which are never reported) also email the team.
+        $exceptions->report(function (Throwable $e): void {
+            if (app()->isProduction()) {
+                OpsAlert::forException($e);
+            }
+        });
     })->create();
