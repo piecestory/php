@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers\Filament;
 
+use App\Filament\Support\InitialsAvatar;
 use App\Http\Middleware\SetLocale;
 use Filament\FontProviders\LocalFontProvider;
 use Filament\Http\Middleware\Authenticate;
@@ -56,6 +57,7 @@ class AdminPanelProvider extends PanelProvider
             ->brandName('قطعة وقصة')
             ->brandLogo(fn () => asset('images/brand/horizontal-ar.svg'))
             ->brandLogoHeight('2.75rem')
+            ->defaultAvatarProvider(InitialsAvatar::class)
             ->favicon(asset('favicon.svg'))
             // The storefront bundles Livewire's CSP build itself (automatic injection is off), so the
             // panel adds Livewire's standard assets on its own pages only.

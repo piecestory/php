@@ -35,11 +35,11 @@
     :description="$product->translate('meta_description') ?: \Illuminate\Support\Str::limit(strip_tags((string) $description), 160)"
     :image="$images[0]['large'] ?? null" og-type="product">
     <x-slot:head>
-        <script type="application/ld+json">{!! json_encode($schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP) !!}</script>
+        <x-seo.json-ld :data="$schema" />
     </x-slot:head>
 
     <div class="container-page py-8 lg:py-12">
-        <x-ui.breadcrumbs :items="$crumbs" />
+        <x-ui.breadcrumbs :items="$crumbs" :schema="false" />
 
         <div class="mt-6 grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:gap-16">
             <x-product.gallery :$images :$name />

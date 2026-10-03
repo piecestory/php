@@ -35,7 +35,7 @@ final class ProductSchema
             'itemCondition' => $product->condition === ProductCondition::Restored
                 ? 'https://schema.org/RefurbishedCondition'
                 : 'https://schema.org/UsedCondition',
-            'seller' => ['@type' => 'Organization', 'name' => __('ui.brand')],
+            'seller' => JsonLd::organization(),
         ], fn (mixed $value) => $value !== null);
 
         $crumbs = [
@@ -58,15 +58,7 @@ final class ProductSchema
                 'category' => $product->category?->translate('name'),
                 'offers' => $offer,
             ], fn (mixed $value) => $value !== null),
-            [
-                '@context' => 'https://schema.org',
-                '@type' => 'BreadcrumbList',
-                'itemListElement' => array_map(
-                    fn (array $crumb, int $i) => ['@type' => 'ListItem', 'position' => $i + 1, ...$crumb],
-                    $crumbs,
-                    array_keys($crumbs),
-                ),
-            ],
+            JsonLd::breadcrumbList($crumbs),
         ];
     }
 

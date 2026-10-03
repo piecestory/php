@@ -39,7 +39,7 @@ class HeroSlide extends Model implements HasMedia
 
     public function registerMediaCollections(): void
     {
-        $this->addMediaCollection(self::MEDIA_DESKTOP)->singleFile();
-        $this->addMediaCollection(self::MEDIA_MOBILE)->singleFile();
+        $this->addMediaCollection(self::MEDIA_DESKTOP)->singleFile()->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp']);
+        $this->addMediaCollection(self::MEDIA_MOBILE)->singleFile()->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp']);
     }
 }

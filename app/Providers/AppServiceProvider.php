@@ -103,6 +103,9 @@ class AppServiceProvider extends ServiceProvider
 
         if ($isProduction) {
             URL::forceHttps();
+            // Cookies travel over HTTPS only, and error pages never show code or server paths,
+            // whatever the .env says (errors are in storage/logs).
+            config(['session.secure' => true, 'app.debug' => false]);
         }
 
         Password::defaults(fn () => $isProduction

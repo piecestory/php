@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetLocale;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -22,6 +23,9 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Provider notifications are authenticated by their signature, not a session token.
         $middleware->validateCsrfTokens(except: ['payments/*/webhook']);
+
+        // Every response, including the staff panel (which has its own middleware stack) and error pages.
+        $middleware->append(SecurityHeaders::class);
 
         $middleware->redirectGuestsTo(fn () => localized_route('login'));
         $middleware->redirectUsersTo(fn () => localized_route('home'));

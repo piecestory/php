@@ -161,6 +161,27 @@ Renditions are width-bound and never upscaled; `RecordImageDimensions` stores ea
 - Removing a lot keeps its interest records (moved to "whole auction"); deleting an auction deletes its lots through the models so their photos are removed too. Cancelling is the non-destructive alternative.
 - Permission `manage_auctions` (admin, store manager).
 
+### ADR-031 — SEO and performance budgets
+- `/sitemap.xml` (`App\Support\Seo\Sitemap`): every public page in both languages, each with its hreflang alternates; only published/active records; the journal and auctions only once they have content. Cached 1 hour. `/robots.txt` is generated: outside production it disallows everything (staging can never be indexed); in production it blocks private paths (cart, checkout, account, orders, payments, sign-in, search, admin) in both languages and points to the sitemap. The static `public/robots.txt` was removed.
+- Structured data through `<x-seo.json-ld>` (`App\View\Seo\JsonLd`): Organization + WebSite with SearchAction on the home page, BreadcrumbList from every `<x-ui.breadcrumbs>` (the product page supplies its own), Product (existing), Article for journal posts (author = the store, never a staff name).
+- Social cards: every page has og:image (its own picture or `public/images/og-default.jpg`, a 1200×630 brand card) and `summary_large_image`. Canonical drops filters and sorting but keeps `?page=N`; hreflang alternates follow the same rule. Sign-in pages are noindex.
+- JavaScript: the storefront has no Livewire components, so it loads Alpine alone (`@alpinejs/csp`, the version Livewire bundles); Livewire stays in the staff panel. Bundle 318 KB → 76 KB (101.5 → 24.6 KB gzip; budget 100 KB).
+- Logos are drawn with a CSS mask over the cached SVG file (`logo-mask`) instead of inline SVG: −58 KB of HTML on every page. Brand SVGs live in `public/images/brand`.
+- The first two cards of a listing load eagerly (the phone's largest image); the footer uses `content-visibility: auto` (about a third less layout work measured on the store page; nothing follows the footer, so no layout shift).
+- `public/.htaccess`: gzip for text, one-year immutable caching for CSS/JS/fonts (hashed names; Filament assets carry `?v=`), 30 days for images.
+- Measured locally (Edge with Lighthouse's mobile throttling: slow 4G + 4× CPU; gzip proxy; production caches): CLS ≤ 0.02 everywhere; LCP 0.7–2.1 s on store, category, journal, contact and English home. **Arabic home (≈ 3.5 s) and product page (≈ 3.0 s) exceed the 2.5 s budget**: the hero/product photo shares bandwidth with ~230 KB of Arabic web fonts. Re-measure with PageSpeed Insights on production (HTTP/2, opcache) in phase 18 before launch.
+- Deploy must run `php artisan optimize` (config, routes, views, events cached): measured 25–40 % less server time.
+
+### ADR-032 — Security headers and production safeguards
+- `SecurityHeaders` (global middleware, so it also covers the staff panel and error pages): `nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` (camera, microphone, geolocation, USB off; payment self only), `Cross-Origin-Opener-Policy: same-origin`; HSTS (1 year, no includeSubDomains) over HTTPS in production; `X-Powered-By` removed.
+- Content-Security-Policy, storefront: `script-src 'self'` — no inline scripts, no eval (Alpine CSP build); JSON-LD blocks are data, not scripts. Staff panel (`/admin`, Livewire endpoints): `'unsafe-inline' 'unsafe-eval'` for scripts, which Filament needs, still same-origin only. Both: styles self + inline attributes (image ratios, logo masks), images/fonts self + data:, `object-src 'none'`, `base-uri 'self'`, `frame-ancestors 'none'`, `upgrade-insecure-requests` in production. With `npm run dev` the Vite server origin is added automatically.
+- `form-action` is `'self'` plus `PAYMENT_CHECKOUT_ORIGINS`: browsers apply it to the redirect from checkout to a provider's payment page, so a provider's origin must be added there when its account is activated (Moyasar, Tabby, Tamara).
+- Staff avatars are drawn locally (`InitialsAvatar`); Filament's default sent staff names to ui-avatars.com.
+- Production safeguards in `AppServiceProvider`, independent of `.env` mistakes: HTTPS URLs, `Secure` session cookie, debug mode off (no stack traces or paths shown to visitors). Destructive database commands were already prohibited.
+- Every public image collection accepts only JPEG/PNG/WebP at the model level too (no SVG/HTML on the public disk); request photos stay on the private disk.
+- `public/.htaccess`: no directory listings; dot-files (`.env`, `.git`) are never served.
+- Review results: `composer audit` and `npm audit` clean; raw SQL limited to constant expressions with bound values; `{!! !!}` only for icon files, encoded JSON-LD and the XML prolog; token and signature checks use `hash_equals`; every public form, lookup and sign-in is rate-limited; password reset answers the same whether or not the email exists; the SMS log driver redacts message bodies outside local development.
+
 ## Directory map
 
 ```

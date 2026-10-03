@@ -1,6 +1,6 @@
 @props(['title', 'intro' => null])
 
-<x-layouts.store :$title>
+<x-layouts.store :$title noindex>
     <div class="container-page flex justify-center py-12 sm:py-20">
         <div class="w-full max-w-md">
             <div class="mb-8 text-center">

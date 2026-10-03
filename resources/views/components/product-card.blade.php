@@ -10,13 +10,14 @@
     'purchasable' => true,
     'onRequest' => false,
     'productId' => null,
+    'eager' => false, // first cards of a listing: they are the largest thing on a phone's first screen
 ])
 
 <article {{ $attributes->class(['group relative flex flex-col']) }}>
     <div class="relative overflow-hidden rounded-xs border border-line bg-paper">
         @if ($href)<a href="{{ $href }}" tabindex="-1" aria-hidden="true">@endif
             <x-ui.image :src="$image" :srcset="$srcset" sizes="(min-width: 1024px) 18vw, (min-width: 640px) 30vw, 46vw"
-                :alt="$name" ratio="4/5"
+                :alt="$name" ratio="4/5" :$eager
                 class="transition-transform duration-500 ease-elegant group-hover:scale-[1.03]" />
         @if ($href)</a>@endif
 

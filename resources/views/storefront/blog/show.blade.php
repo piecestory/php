@@ -10,6 +10,10 @@
 <x-layouts.store :title="$post->translate('meta_title') ?? $title"
     :description="$post->translate('meta_description') ?? $post->translate('excerpt') ?? Markdown::toText($body)"
     :image="$cover['src'] ?? null" og-type="article">
+    <x-slot:head>
+        <x-seo.json-ld :data="\App\View\Seo\ArticleSchema::for($post)" />
+    </x-slot:head>
+
     <div class="container-page py-12 lg:py-16">
         <x-ui.breadcrumbs :items="[['label' => __('ui.home'), 'href' => localized_route('home')], ['label' => __('blog.title'), 'href' => localized_route('blog')], ['label' => $title]]" />
 

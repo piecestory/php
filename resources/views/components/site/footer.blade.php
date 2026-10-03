@@ -4,7 +4,8 @@
     $help = \App\View\Navigation::help();
 @endphp
 
-<footer class="mt-auto bg-night text-ivory/75">
+{{-- Laid out only when it nears the screen: the footer is a large block of text and nothing follows it, so this cannot move anything. --}}
+<footer class="mt-auto bg-night text-ivory/75 [content-visibility:auto] [contain-intrinsic-size:auto_700px]">
     <div class="container-page grid gap-12 py-16 sm:grid-cols-2 lg:flex lg:gap-20">
         <div class="space-y-5 lg:me-auto lg:max-w-sm">
             <a href="{{ localized_route('home') }}" class="inline-flex h-24 text-gold" aria-label="{{ __('ui.brand') }}">

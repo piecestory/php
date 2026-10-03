@@ -14,6 +14,10 @@
 @endphp
 
 <x-layouts.store :description="__('site.home.hero_text')">
+    <x-slot:head>
+        <x-seo.json-ld :data="\App\View\Seo\JsonLd::home()" />
+    </x-slot:head>
+
     {{-- Hero --}}
     @if ($slides->isNotEmpty())
         <section x-data="slider" x-on:touchstart.passive="touchStart" x-on:touchend="touchEnd"

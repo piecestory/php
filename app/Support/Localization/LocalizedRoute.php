@@ -60,8 +60,11 @@ final class LocalizedRoute
         return Route::has(self::name($name));
     }
 
-    /** The current page in another language, or that language's home page if there is no counterpart. */
-    public static function switchTo(string $locale): string
+    /**
+     * The current page in another language, or that language's home page if there is no counterpart.
+     * Visitors keep their filters; search engines ($canonical) get the same address the canonical link uses.
+     */
+    public static function switchTo(string $locale, bool $canonical = false): string
     {
         $route = request()->route();
         $current = $route?->getName();
@@ -77,6 +80,10 @@ final class LocalizedRoute
         }
 
         $query = request()->query();
+        if ($canonical) {
+            $page = request()->integer('page');
+            $query = $page > 1 ? ['page' => $page] : [];
+        }
 
         return self::url($base, $route->parameters(), $locale).($query ? '?'.http_build_query($query) : '');
     }

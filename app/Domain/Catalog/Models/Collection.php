@@ -33,7 +33,7 @@ class Collection extends Model implements HasMedia
 
     public function registerMediaCollections(): void
     {
-        $this->addMediaCollection(self::MEDIA_COVER)->singleFile();
+        $this->addMediaCollection(self::MEDIA_COVER)->singleFile()->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp']);
     }
 
     /** @return BelongsToMany<Product, $this> */

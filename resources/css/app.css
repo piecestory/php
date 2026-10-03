@@ -192,6 +192,13 @@
     display: inline-block;
 }
 
+/* Brand logo (x-logo): the SVG file (--logo) cut out of the current text colour, so one cached file serves every colour. */
+@utility logo-mask {
+    background-color: currentColor;
+    -webkit-mask: var(--logo) center / contain no-repeat;
+    mask: var(--logo) center / contain no-repeat;
+}
+
 /* Long-form content written in Markdown (pages, journal): readable measure, brand headings, quiet links. */
 @utility prose-content {
     max-width: 44rem;

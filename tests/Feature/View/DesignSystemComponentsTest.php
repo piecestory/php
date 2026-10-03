@@ -57,14 +57,15 @@ it('refuses unknown or unsafe icon names', function (string $name): void {
     $this->blade('<x-ui.icon name="'.$name.'" />');
 })->with(['does-not-exist', '../../.env'])->throws(ViewException::class);
 
-it('gives each logo on a page its own SVG ids', function (): void {
-    $html = (string) $this->blade('<x-logo /><x-logo />');
+it('draws the logo from its versioned file, decorative and with the file\'s proportions', function (string $variant, string $file): void {
+    $html = (string) $this->blade('<x-logo variant="'.$variant.'" />');
 
-    preg_match_all('/\bid="([^"]+)"/', $html, $matches);
-
-    expect($matches[1])->not->toBeEmpty()
-        ->and(count($matches[1]))->toBe(count(array_unique($matches[1])));
-});
+    expect($html)->toContain('logo-mask')
+        ->toContain('aria-hidden="true"')
+        ->toMatch('#images/brand/'.$file.'\.svg\?v=[0-9a-f]{16}#')
+        ->toMatch('#aspect-ratio: [\d.]+ / [\d.]+#')
+        ->not->toContain('<svg');
+})->with([['horizontal', 'horizontal-ar'], ['compact', 'compact-ar'], ['emblem', 'emblem']]);
 
 it('does not expose the design reference outside local development', function (): void {
     $this->get('/_design')->assertNotFound();

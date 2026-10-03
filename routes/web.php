@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Admin\PrivateMediaController;
 use App\Http\Controllers\SandboxPaymentController;
+use App\Http\Controllers\Seo\SeoController;
 use App\Http\Controllers\Storefront\PaymentController;
 use App\Support\Localization\Locales;
 use Illuminate\Support\Facades\Route;
@@ -20,6 +21,10 @@ foreach (Locales::SUPPORTED as $locale) {
 
     $group->group(base_path('routes/storefront.php'));
 }
+
+// Search engines: both languages in one sitemap; robots.txt keeps non-production sites out of the index.
+Route::get('/robots.txt', [SeoController::class, 'robots'])->name('robots');
+Route::get('/sitemap.xml', [SeoController::class, 'sitemap'])->name('sitemap');
 
 // Payment provider notifications (no locale, no CSRF: verified by the provider's signature).
 Route::post('/payments/{provider}/webhook', [PaymentController::class, 'webhook'])

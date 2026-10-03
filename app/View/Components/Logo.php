@@ -9,44 +9,45 @@ use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
 /**
- * Inline brand logo (inherits the surrounding text colour). Internal SVG ids are made unique per
- * render so the logo can appear several times on one page (header + footer) without id clashes.
+ * Brand logo in the surrounding text colour. Drawn as a CSS mask over the SVG file (public/images/brand)
+ * rather than inlined: the file is downloaded once and cached, instead of adding ~15–25 KB to every
+ * page for each logo (header, mobile menu, footer).
  */
 class Logo extends Component
 {
-    private static int $instances = 0;
-
-    /** @var array<string, string> */
-    private static array $sources = [];
+    /** @var array<string, array{url: string, ratio: string}> */
+    private static array $files = [];
 
     /** @param 'horizontal'|'compact'|'emblem' $variant */
     public function __construct(public string $variant = 'horizontal') {}
 
-    public function svg(): string
+    /** @return array{url: string, ratio: string} versioned URL (cache-busting) and width/height from the viewBox */
+    public function file(): array
     {
-        $file = match ($this->variant) {
+        $name = match ($this->variant) {
             'emblem' => 'emblem',
             'compact' => 'compact-ar',
             default => Locales::resolve() === 'en' ? 'horizontal-en' : 'horizontal-ar',
         };
 
-        $source = self::$sources[$file] ??= (string) file_get_contents(resource_path("images/brand/{$file}.svg"));
-        $suffix = '-'.++self::$instances;
-
-        $svg = (string) preg_replace('/\bid="([^"]+)"/', 'id="$1'.$suffix.'"', $source);
-        $svg = (string) preg_replace('/url\(#([^)]+)\)/', 'url(#$1'.$suffix.')', $svg);
-
-        // Accessible name comes from the surrounding link; the SVG itself is decorative.
-        return (string) preg_replace(
-            ['/<svg /', '/ role="img" aria-label="[^"]*"/', '/<title>.*?<\/title>/'],
-            ['<svg aria-hidden="true" focusable="false" class="h-full w-auto" ', '', ''],
-            $svg,
-            1,
-        );
+        return self::$files[$name] ??= self::describe($name);
     }
 
     public function render(): View
     {
         return view('components.logo');
+    }
+
+    /** @return array{url: string, ratio: string} */
+    private static function describe(string $name): array
+    {
+        $path = public_path("images/brand/{$name}.svg");
+        $svg = (string) file_get_contents($path);
+        preg_match('/viewBox="\s*[-\d.]+\s+[-\d.]+\s+([\d.]+)\s+([\d.]+)\s*"/', $svg, $box);
+
+        return [
+            'url' => asset("images/brand/{$name}.svg").'?v='.hash('xxh3', $svg),
+            'ratio' => isset($box[2]) ? "{$box[1]} / {$box[2]}" : '1 / 1',
+        ];
     }
 }

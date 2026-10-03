@@ -1,5 +1,6 @@
-{{-- $items: list of ['label' => string, 'href' => ?string]; the last item is the current page. --}}
-@props(['items'])
+{{-- $items: list of ['label' => string, 'href' => ?string]; the last item is the current page.
+     Also published as schema.org BreadcrumbList unless the page provides its own ($schema = false). --}}
+@props(['items', 'schema' => true])
 
 <nav aria-label="{{ __('ui.breadcrumbs') }}" {{ $attributes->class(['text-xs text-ink-soft']) }}>
     <ol class="flex flex-wrap items-center gap-1.5">
@@ -17,3 +18,9 @@
         @endforeach
     </ol>
 </nav>
+@if ($schema)
+    <x-seo.json-ld :data="\App\View\Seo\JsonLd::breadcrumbList(array_map(
+        fn (array $item) => ['name' => (string) $item['label'], 'item' => $item['href'] ?? url()->current()],
+        array_values($items),
+    ))" />
+@endif

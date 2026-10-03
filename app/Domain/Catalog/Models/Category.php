@@ -40,7 +40,7 @@ class Category extends Model implements HasMedia
 
     public function registerMediaCollections(): void
     {
-        $this->addMediaCollection(self::MEDIA_IMAGE)->singleFile();
+        $this->addMediaCollection(self::MEDIA_IMAGE)->singleFile()->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp']);
     }
 
     /** @return BelongsTo<Category, $this> */

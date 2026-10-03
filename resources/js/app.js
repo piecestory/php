@@ -1,5 +1,6 @@
-// Livewire + Alpine, CSP-safe build: components are registered here, templates only reference them by name.
-import { Alpine, Livewire } from '../../vendor/livewire/livewire/dist/livewire.csp.esm';
+// Alpine, CSP-safe build: components are registered here, templates only reference them by name.
+// The storefront has no Livewire components, so it loads Alpine alone (Livewire runs only in the staff panel).
+import Alpine from '@alpinejs/csp';
 
 // Open/close panels (mobile menu). Locks page scroll while open; Escape closes.
 Alpine.data('disclosure', () => ({
@@ -281,4 +282,4 @@ for (const nav of document.querySelectorAll('[data-scroll-active]')) {
     }
 }
 
-Livewire.start();
+Alpine.start();
