@@ -78,6 +78,12 @@ return [
             'body' => 'Payment was not completed in time, so the reservation was cancelled and the piece is back on sale. Any deposit you paid will be refunded in full.',
             'sms' => 'Piece & Story: reservation :number was cancelled as payment was not completed. Any deposit paid is refunded in full.',
         ],
+        'shipped' => [
+            'subject' => 'Your order :number has shipped',
+            'heading' => 'Your order is on its way',
+            'body' => 'We have handed your order to the courier. Tracking number: :tracking. You can follow it from your order page.',
+            'sms' => 'Piece & Story: order :number has shipped, tracking :tracking. Details: :link',
+        ],
         'greeting' => 'Hello :name,',
         'view_order' => 'View your order',
         'questions' => 'Questions? Write to us at :email',

@@ -14,6 +14,16 @@ use Illuminate\Database\Eloquent\Builder;
  */
 trait HasPublication
 {
+    /** Publishing without a date means "now"; a future date schedules the publication. */
+    protected static function bootHasPublication(): void
+    {
+        static::saving(function (self $model): void {
+            if ($model->getAttribute('status') === PublicationStatus::Published && $model->getAttribute('published_at') === null) {
+                $model->setAttribute('published_at', now());
+            }
+        });
+    }
+
     /** @param Builder<static> $query */
     #[Scope]
     protected function published(Builder $query): void

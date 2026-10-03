@@ -9,6 +9,7 @@ use App\Domain\Auctions\Models\AuctionLot;
 use App\Domain\Catalog\Models\Category;
 use App\Domain\Catalog\Models\Collection;
 use App\Domain\Catalog\Models\Product;
+use App\Domain\Content\Models\Faq;
 use App\Domain\Content\Models\HeroSlide;
 use App\Domain\Content\Models\Post;
 use App\Domain\Identity\Models\User;
@@ -19,6 +20,8 @@ use App\Domain\Payments\PaymentGateways;
 use App\Domain\PersonalFinder\Models\FinderRequest;
 use App\Domain\Settings\StoreSettings;
 use App\Domain\Shared\Listeners\RecordImageDimensions;
+use App\Domain\Shipping\Models\ShippingMethod;
+use App\Domain\Store\Models\Branch;
 use App\Http\Support\CurrentCart;
 use App\Http\Support\CurrentWishlist;
 use App\Infrastructure\Payments\SandboxGateway;
@@ -84,6 +87,9 @@ class AppServiceProvider extends ServiceProvider
             'auction_lot' => AuctionLot::class,
             'post' => Post::class,
             'hero_slide' => HeroSlide::class,
+            'faq' => Faq::class,
+            'branch' => Branch::class,
+            'shipping_method' => ShippingMethod::class,
         ]);
 
         // Blocks migrate:fresh / db:wipe against the live database.

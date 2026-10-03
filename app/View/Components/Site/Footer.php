@@ -40,6 +40,11 @@ class Footer extends Component
         return app(StoreSettings::class)->get('store.email');
     }
 
+    public function phone(): ?string
+    {
+        return app(StoreSettings::class)->get('store.phone');
+    }
+
     public function render(): View
     {
         return view('components.site.footer');

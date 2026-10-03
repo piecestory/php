@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Catalog\Models;
 
 use App\Domain\Shared\Concerns\HasWebpRenditions;
+use App\Domain\Shared\Concerns\RecordsChanges;
 use App\Support\Localization\HasLocalizedSlug;
 use App\Support\Localization\HasTranslations;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -18,7 +19,7 @@ use Spatie\MediaLibrary\HasMedia;
 ])]
 class Collection extends Model implements HasMedia
 {
-    use HasLocalizedSlug, HasTranslations, HasWebpRenditions;
+    use HasLocalizedSlug, HasTranslations, HasWebpRenditions, RecordsChanges;
 
     public const string MEDIA_COVER = 'cover';
 

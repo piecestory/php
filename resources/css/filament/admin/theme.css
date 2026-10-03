@@ -1,0 +1,9 @@
+/* Admin panel theme: Filament's styles with the brand's Arabic typeface, bundled locally (no external font requests). */
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+@import '@fontsource/ibm-plex-sans-arabic/400.css';
+@import '@fontsource/ibm-plex-sans-arabic/500.css';
+@import '@fontsource/ibm-plex-sans-arabic/600.css';
+@import '@fontsource/ibm-plex-sans-arabic/700.css';
+
+@source '../../../../app/Filament/**/*';
+@source '../../../../resources/views/filament/**/*';

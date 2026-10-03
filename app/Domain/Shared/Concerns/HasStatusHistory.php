@@ -16,7 +16,8 @@ trait HasStatusHistory
     /** @return MorphMany<StatusChange, $this> */
     public function statusChanges(): MorphMany
     {
-        return $this->morphMany(StatusChange::class, 'subject')->latest('id');
+        // The history is always shown with who made each change.
+        return $this->morphMany(StatusChange::class, 'subject')->with('author')->latest('id');
     }
 
     public function recordStatusChange(?BackedEnum $from, BackedEnum $to, ?int $changedBy = null, ?string $note = null): StatusChange

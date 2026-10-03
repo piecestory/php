@@ -128,6 +128,16 @@ Renditions are width-bound and never upscaled; `RecordImageDimensions` stores ea
 - Profile: changing the email or mobile (sign-in identifiers) needs the current password when the account has one; a changed identifier loses its verified status. Accounts with a password keep an email (it is how they sign in). Customers who signed up with an SMS code can set a first password. Changing the password rotates the remember-me token and ends the customer's other sessions.
 - Message language (`users.locale`) is chosen in the profile; emails and SMS follow it.
 
+### ADR-027 — Staff panel (Filament 5, `/admin`)
+- Arabic, RTL, brand bronze (explicit OKLCH palette) and IBM Plex Sans Arabic bundled locally (`resources/css/filament/admin/theme.css`, built by Vite). Filament's own assets are published by `php artisan filament:upgrade` (composer post-autoload-dump) and are not committed.
+- The storefront bundles Livewire's CSP-safe build and turns automatic asset injection off; the panel adds Livewire's standard assets on its own pages through render hooks. Consequence for Phase 15: `/admin` needs its own, looser Content-Security-Policy (Filament evaluates Alpine expressions).
+- Access: `User::canAccessPanel()` = active account with `access_admin`. Each section declares the one permission it needs (`RequiresPermission` trait over Filament's authorization) and lists abilities it never offers (orders cannot be created, edited or deleted by hand; pieces are archived, not erased; branches and shipping methods are switched off, not deleted). The role → permission matrix lives in `Role::permissions()` and is covered by a test that opens every section with every role.
+- Screens only call domain actions: `StockLedger::setQuantity` (opening stock and adjustments, with reason and author, in the movement log), `RecordInStorePayment`, `FulfilOrder` (prepare → ship with tracking → delivered; showroom pickups go prepare → delivered), `CancelOrder`, `SaveStaffMember` (nobody changes their own role or switches themselves off; at least one active system admin always remains), `RevokeSessions` (deactivated accounts and password changes sign the user out everywhere).
+- Showroom payments are recorded as provider `in_store`; cancelling such an order creates a *pending* refund (money is returned at the showroom), never a fake "completed" one.
+- Admin URLs address records by id (`$recordRouteKeyName = 'id'`), so editing a storefront slug never moves an admin page.
+- Change log: catalogue, content and settings models use `RecordsChanges` (spatie/activitylog: only changed fillable fields, with the staff member as causer); stock is excluded because it has its own ledger. Read-only "سجل التعديلات" for system admins.
+- First admin on a server: `php artisan admin:create` (hidden password prompt; nothing in code or shell history).
+
 ## Directory map
 
 ```

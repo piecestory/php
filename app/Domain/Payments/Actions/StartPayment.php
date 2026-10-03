@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Domain\Payments\Actions;
 
-use App\Domain\Orders\Enums\OrderStatus;
-use App\Domain\Orders\Enums\OrderType;
 use App\Domain\Orders\Models\Order;
 use App\Domain\Payments\Data\PaymentRedirect;
 use App\Domain\Payments\Enums\PaymentMethod;
@@ -33,11 +31,7 @@ final class StartPayment
             throw PaymentException::nothingToPay();
         }
 
-        $purpose = match (true) {
-            $order->type === OrderType::DepositReservation && $order->status === OrderStatus::Pending => PaymentPurpose::Deposit,
-            bccomp((string) $order->amount_paid, '0', 2) > 0 => PaymentPurpose::Balance,
-            default => PaymentPurpose::Full,
-        };
+        $purpose = $order->nextPaymentPurpose();
 
         $gateway = $this->gateways->for($method);
         if ($gateway === null || ($purpose === PaymentPurpose::Deposit && ! $method->canPayDeposit())) {

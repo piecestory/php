@@ -28,7 +28,8 @@ enum OrderStatus: string
             self::Pending => [self::Confirmed, self::Reserved, self::Cancelled],
             self::Reserved => [self::Confirmed, self::Cancelled],
             self::Confirmed => [self::Processing, self::Cancelled],
-            self::Processing => [self::Shipped, self::Cancelled],
+            // Showroom pickups are handed over without shipping: processing → delivered.
+            self::Processing => [self::Shipped, self::Delivered, self::Cancelled],
             self::Shipped => [self::Delivered],
             self::Delivered => [self::Refunded],
             self::Cancelled, self::Refunded => [],

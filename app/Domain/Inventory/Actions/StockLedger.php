@@ -10,6 +10,7 @@ use App\Domain\Inventory\Models\InventoryMovement;
 use App\Domain\Inventory\Models\StockReservation;
 use App\Domain\Orders\Models\Order;
 use DateTimeInterface;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Every stock change for orders goes through here and is written to the movement ledger.
@@ -74,17 +75,37 @@ final class StockLedger
         $this->record($product, $quantity, $reason, $order, $userId);
     }
 
-    private function record(Product $product, int $change, InventoryReason $reason, Order $order, ?int $userId = null): void
+    /**
+     * Staff sets the quantity on hand (initial stock, count correction, piece found or damaged).
+     * Held pieces are already out of stock, so this is the quantity free to sell.
+     */
+    public function setQuantity(Product $product, int $quantity, InventoryReason $reason, ?int $userId, ?string $note = null): void
+    {
+        DB::transaction(function () use ($product, $quantity, $reason, $userId, $note): void {
+            $locked = Product::withTrashed()->lockForUpdate()->findOrFail($product->id);
+            $change = $quantity - $locked->stock_quantity;
+            if ($change === 0) {
+                return;
+            }
+
+            $locked->forceFill(['stock_quantity' => $quantity])->save();
+            $this->record($locked, $change, $reason, null, $userId, $note);
+        });
+
+        $product->refresh();
+    }
+
+    private function record(Product $product, int $change, InventoryReason $reason, ?Order $order, ?int $userId = null, ?string $note = null): void
     {
         InventoryMovement::query()->create([
             'product_id' => $product->id,
             'quantity_change' => $change,
             'stock_after' => $product->stock_quantity,
             'reason' => $reason,
-            'reference_type' => $order->getMorphClass(),
-            'reference_id' => $order->id,
+            'reference_type' => $order?->getMorphClass(),
+            'reference_id' => $order?->id,
             'user_id' => $userId,
-            'note' => $order->number,
+            'note' => $note ?? $order?->number,
         ]);
     }
 }

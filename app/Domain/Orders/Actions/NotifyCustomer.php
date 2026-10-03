@@ -48,6 +48,7 @@ final class NotifyCustomer
             'until' => $date($order->reserved_until),
             'deadline' => $date($order->hold_expires_at),
             'link' => OrderLink::page($order),
+            'tracking' => (string) $order->shipments()->latest('id')->value('tracking_number'),
         ];
     }
 }

@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace App\Domain\Identity\Models;
 
+use App\Domain\Identity\Enums\Permission;
 use App\Domain\Orders\Models\Order;
 use App\Domain\Wishlist\Models\WishlistItem;
 use Database\Factories\UserFactory;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
@@ -19,10 +22,21 @@ use Spatie\Permission\Traits\HasRoles;
 #[Fillable(['name', 'email', 'phone', 'password', 'locale', 'is_active'])]
 #[Hidden(['password', 'remember_token'])]
 #[UseFactory(UserFactory::class)]
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, HasRoles, Notifiable;
+
+    /** Staff panel: active accounts holding the admin-access permission (customers never). */
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return $this->is_active && $this->can(Permission::AccessAdmin->value);
+    }
+
+    public function isStaff(): bool
+    {
+        return $this->roles()->exists();
+    }
 
     protected function casts(): array
     {

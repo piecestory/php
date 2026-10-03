@@ -10,6 +10,7 @@ use App\Domain\Orders\Enums\OrderPaymentStatus;
 use App\Domain\Orders\Enums\OrderStatus;
 use App\Domain\Orders\Enums\OrderType;
 use App\Domain\Payments\Enums\PaymentMethod;
+use App\Domain\Payments\Enums\PaymentPurpose;
 use App\Domain\Payments\Models\Payment;
 use App\Domain\Shared\Concerns\HasStatusHistory;
 use App\Domain\Shipping\Models\Shipment;
@@ -127,8 +128,17 @@ class Order extends Model
     /** Pending deposit reservations pay the deposit first; everything else pays what is left. */
     public function nextPaymentAmount(): string
     {
-        return $this->type === OrderType::DepositReservation && $this->status === OrderStatus::Pending
+        return $this->nextPaymentPurpose() === PaymentPurpose::Deposit
             ? (string) $this->deposit_total
             : $this->balanceDue();
+    }
+
+    public function nextPaymentPurpose(): PaymentPurpose
+    {
+        return match (true) {
+            $this->type === OrderType::DepositReservation && $this->status === OrderStatus::Pending => PaymentPurpose::Deposit,
+            bccomp((string) $this->amount_paid, '0', 2) > 0 => PaymentPurpose::Balance,
+            default => PaymentPurpose::Full,
+        };
     }
 }

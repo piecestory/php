@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Content\Models;
 
 use App\Domain\Shared\Concerns\HasWebpRenditions;
+use App\Domain\Shared\Concerns\RecordsChanges;
 use App\Support\Localization\HasTranslations;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
@@ -16,7 +17,7 @@ use Spatie\MediaLibrary\HasMedia;
 ])]
 class HeroSlide extends Model implements HasMedia
 {
-    use HasTranslations, HasWebpRenditions;
+    use HasTranslations, HasWebpRenditions, RecordsChanges;
 
     public const string MEDIA_DESKTOP = 'desktop';
 

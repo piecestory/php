@@ -1,0 +1,21 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Filament\Resources\Collections\Pages;
+
+use App\Filament\Resources\Collections\CollectionResource;
+use Filament\Actions\CreateAction;
+use Filament\Resources\Pages\ManageRecords;
+
+class ManageCollections extends ManageRecords
+{
+    protected static string $resource = CollectionResource::class;
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            CreateAction::make(),
+        ];
+    }
+}

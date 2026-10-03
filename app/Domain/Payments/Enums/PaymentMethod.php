@@ -11,6 +11,8 @@ enum PaymentMethod: string
     case ApplePay = 'apple_pay';
     case Tabby = 'tabby';
     case Tamara = 'tamara';
+    /** Paid at a showroom (card terminal or cash) and recorded by staff in the admin. */
+    case InStore = 'in_store';
 
     /** The methods the store offers, in display order (credit cards are not offered). */
     public const array OFFERED = [self::Mada, self::ApplePay, self::Tabby, self::Tamara];

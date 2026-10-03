@@ -29,3 +29,8 @@ Thumbs.db
 # Local dev environment (database data, PHP extension overrides)
 /.dev
 /tools/brand/node_modules
+
+# Filament panel assets: published by `php artisan filament:upgrade` (composer post-autoload-dump)
+/public/css/filament
+/public/js/filament
+/public/fonts/filament

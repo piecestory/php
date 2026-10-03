@@ -15,6 +15,8 @@ enum OrderNotice: string
     case ReservationReminder = 'reservation_reminder';
     /** Not paid in time: the reservation was cancelled (any deposit is refunded). */
     case ReservationCancelled = 'reservation_cancelled';
+    /** Handed to the courier, with the tracking number. */
+    case Shipped = 'shipped';
 
     /** The store team is told about new confirmed orders and reservations. */
     public function alertsStore(): bool

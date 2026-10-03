@@ -10,6 +10,7 @@ use App\Domain\Inventory\Models\InventoryMovement;
 use App\Domain\Inventory\Models\StockReservation;
 use App\Domain\Shared\Concerns\HasPublication;
 use App\Domain\Shared\Concerns\HasWebpRenditions;
+use App\Domain\Shared\Concerns\RecordsChanges;
 use App\Domain\Shared\Enums\PublicationStatus;
 use App\Support\Localization\HasLocalizedSlug;
 use App\Support\Localization\HasTranslations;
@@ -39,7 +40,7 @@ use Spatie\MediaLibrary\HasMedia;
 class Product extends Model implements HasMedia
 {
     /** @use HasFactory<ProductFactory> */
-    use HasFactory, HasLocalizedSlug, HasPublication, HasTranslations, HasWebpRenditions, SoftDeletes;
+    use HasFactory, HasLocalizedSlug, HasPublication, HasTranslations, HasWebpRenditions, RecordsChanges, SoftDeletes;
 
     /** Ordered gallery; the first image is the primary image. */
     public const string MEDIA_GALLERY = 'gallery';
@@ -148,6 +149,16 @@ class Product extends Model implements HasMedia
     public function inventoryMovements(): HasMany
     {
         return $this->hasMany(InventoryMovement::class);
+    }
+
+    /**
+     * Stock has its own ledger (inventory_movements); the change log keeps to the piece's details.
+     *
+     * @return list<string>
+     */
+    protected function changesNotRecorded(): array
+    {
+        return ['stock_quantity'];
     }
 
     /** @return HasMany<StockReservation, $this> */

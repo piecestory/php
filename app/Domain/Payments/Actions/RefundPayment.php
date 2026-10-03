@@ -22,6 +22,16 @@ final class RefundPayment
 
     public function handle(Payment $payment, string $amount, string $reason, ?int $userId = null): Refund
     {
+        // Money taken at a showroom is returned there by staff: recorded as pending until they do.
+        if ($payment->provider === RecordInStorePayment::PROVIDER) {
+            return $payment->refunds()->create([
+                'amount' => $amount,
+                'reason' => $reason,
+                'status' => RefundStatus::Pending,
+                'processed_by' => $userId,
+            ]);
+        }
+
         $reference = null;
 
         try {

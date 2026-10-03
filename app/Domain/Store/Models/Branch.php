@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Store\Models;
 
+use App\Domain\Shared\Concerns\RecordsChanges;
 use App\Domain\Store\Enums\BranchType;
 use App\Support\Localization\HasTranslations;
 use Database\Factories\BranchFactory;
@@ -20,7 +21,7 @@ use Illuminate\Database\Eloquent\Model;
 class Branch extends Model
 {
     /** @use HasFactory<BranchFactory> */
-    use HasFactory, HasTranslations;
+    use HasFactory, HasTranslations, RecordsChanges;
 
     protected function casts(): array
     {

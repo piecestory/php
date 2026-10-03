@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Catalog\Models;
 
 use App\Domain\Shared\Concerns\HasWebpRenditions;
+use App\Domain\Shared\Concerns\RecordsChanges;
 use App\Support\Localization\HasLocalizedSlug;
 use App\Support\Localization\HasTranslations;
 use Database\Factories\CategoryFactory;
@@ -25,7 +26,7 @@ use Spatie\MediaLibrary\HasMedia;
 class Category extends Model implements HasMedia
 {
     /** @use HasFactory<CategoryFactory> */
-    use HasFactory, HasLocalizedSlug, HasTranslations, HasWebpRenditions, SoftDeletes;
+    use HasFactory, HasLocalizedSlug, HasTranslations, HasWebpRenditions, RecordsChanges, SoftDeletes;
 
     public const string MEDIA_IMAGE = 'image';
 

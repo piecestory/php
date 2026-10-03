@@ -57,6 +57,12 @@
                     <x-ui.icon name="clock" class="mt-0.5 size-4 text-gold" />
                     <span>{{ __('site.footer.hours') }}</span>
                 </li>
+                @if ($phone = $phone())
+                    <li class="flex items-start gap-3">
+                        <x-ui.icon name="phone" class="mt-0.5 size-4 text-gold" />
+                        <a href="tel:{{ preg_replace('/[^0-9+]/', '', $phone) }}" class="numerals hover:text-gold" dir="ltr">{{ $phone }}</a>
+                    </li>
+                @endif
                 @if ($email = $email())
                     <li class="flex items-start gap-3">
                         <x-ui.icon name="mail" class="mt-0.5 size-4 text-gold" />

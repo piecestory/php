@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Shipping\Models;
 
+use App\Domain\Shared\Concerns\RecordsChanges;
 use App\Support\Localization\HasTranslations;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
@@ -14,7 +15,7 @@ use Illuminate\Database\Eloquent\Model;
 ])]
 class ShippingMethod extends Model
 {
-    use HasTranslations;
+    use HasTranslations, RecordsChanges;
 
     public const string DELIVERY = 'delivery';
 

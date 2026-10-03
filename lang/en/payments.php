@@ -9,6 +9,7 @@ return [
         'apple_pay' => 'Apple Pay',
         'tabby' => 'Tabby — split in 4',
         'tamara' => 'Tamara — split or pay later',
+        'in_store' => 'Paid in the showroom',
     ],
     'flash' => [
         'failed' => 'The payment was not completed and nothing was charged. You can try again.',
