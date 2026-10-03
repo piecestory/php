@@ -2,12 +2,13 @@
     use App\Domain\Catalog\Models\Category;
     use App\Domain\Content\Models\HeroSlide;
     use App\Support\Localization\LocalizedRoute;
+    use App\View\Navigation;
     use App\View\ProductCard;
 
     $storeUrl = LocalizedRoute::has('store') ? localized_route('store') : null;
     $categoryRoute = LocalizedRoute::has('category');
     $promos = array_filter([
-        LocalizedRoute::has('auctions') ? ['tone' => 'dark', 'key' => 'auctions', 'url' => localized_route('auctions')] : null,
+        LocalizedRoute::has('auctions') && Navigation::hasContent('auctions') ?['tone' => 'dark', 'key' => 'auctions', 'url' => localized_route('auctions')] : null,
         LocalizedRoute::has('personal-finder') ? ['tone' => 'light', 'key' => 'finder', 'url' => localized_route('personal-finder')] : null,
     ]);
 @endphp

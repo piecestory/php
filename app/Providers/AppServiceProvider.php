@@ -136,6 +136,9 @@ class AppServiceProvider extends ServiceProvider
         // Personal Finder and "sell with us" (with photo uploads): a handful per visitor per hour.
         RateLimiter::for('service-requests', fn (Request $request) => Limit::perHour(5)->by($request->ip()));
 
+        // Auction interest registrations (SMS each): a few per visitor every ten minutes.
+        RateLimiter::for('auction-interest', fn (Request $request) => Limit::perMinutes(10, 5)->by($request->ip()));
+
         // Placing orders and starting payments.
         RateLimiter::for('checkout', fn (Request $request) => Limit::perMinute(10)->by($request->ip()));
 

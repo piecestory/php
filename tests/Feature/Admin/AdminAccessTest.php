@@ -25,6 +25,7 @@ dataset('sections', [
     'finder requests' => ['/admin/finder-requests', [Role::Admin, Role::StoreManager, Role::CustomerService]],
     'consignments' => ['/admin/consignments', [Role::Admin, Role::StoreManager, Role::CustomerService]],
     'site pages' => ['/admin/site-pages', [Role::Admin, Role::StoreManager, Role::ContentEditor]],
+    'auctions' => ['/admin/auctions', [Role::Admin, Role::StoreManager]],
     'journal' => ['/admin/posts', [Role::Admin, Role::StoreManager, Role::ContentEditor]],
     'faqs' => ['/admin/faqs', [Role::Admin, Role::StoreManager, Role::ContentEditor]],
     'hero slides' => ['/admin/hero-slides', [Role::Admin, Role::StoreManager, Role::ContentEditor]],

@@ -153,6 +153,14 @@ Renditions are width-bound and never upscaled; `RecordImageDimensions` stores ea
 - Commercial terms after approval (commission, how the piece reaches the showroom) are not modelled: the approval note and a call from the team carry them until the owner decides them.
 - Submissions are rate-limited (5 per hour per IP) and protected by a honeypot field.
 
+### ADR-030 — Auctions showcase (v1)
+- Display and "register your interest" only: no bids, deposits or settlement tables until online bidding is approved. `/auctions` lists current/upcoming auctions and up to 12 past ones; `/auctions/{slug}` shows the lots (opening price, optional estimate range; photo from the lot or, failing that, the linked catalogue piece).
+- Staff choose only Draft / Published (`scheduled`) / Cancelled. Upcoming → live → ended is derived from `starts_at`/`ends_at` (`Auction::phase()`), so nothing has to be switched by hand or by a scheduler. The legacy `live`/`ended` status values count as published.
+- The menu link and the home promo card appear only while at least one auction is published (`ContentAvailability::hasAuctions`, flushed on save). Section menu items stay highlighted on their inner pages.
+- `RegisterAuctionInterest`: refused once the auction has ended or is not published; one registration per phone + auction + lot (repeats are neither stored nor re-notified); SMS confirmation in the visitor's language + email alert to the store mailbox. Rate limit 5 per 10 minutes per IP, honeypot field.
+- Removing a lot keeps its interest records (moved to "whole auction"); deleting an auction deletes its lots through the models so their photos are removed too. Cancelling is the non-destructive alternative.
+- Permission `manage_auctions` (admin, store manager).
+
 ## Directory map
 
 ```

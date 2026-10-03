@@ -38,7 +38,7 @@ final class Navigation
         return self::build(self::HELP);
     }
 
-    /** Content pages appear once published; the journal once it has a published article. */
+    /** Content pages appear once published; the journal and auctions once something is published there. */
     public static function hasContent(string $route): bool
     {
         $content = app(ContentAvailability::class);
@@ -46,6 +46,7 @@ final class Navigation
         return match (true) {
             PageKey::tryFrom($route) !== null => $content->hasPage($route),
             $route === 'blog' => $content->hasBlog(),
+            $route === 'auctions' => $content->hasAuctions(),
             default => true,
         };
     }
@@ -68,7 +69,8 @@ final class Navigation
             $items[] = [
                 'label' => __('site.nav.'.str_replace('-', '_', $route)),
                 'url' => route($name),
-                'active' => $current === $name,
+                // A section stays highlighted on its inner pages (an article, an auction).
+                'active' => $current === $name || str_starts_with((string) $current, $name.'.'),
             ];
         }
 

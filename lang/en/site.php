@@ -59,7 +59,7 @@ return [
         'next_slide' => 'Next slide',
         'go_to_slide' => 'Go to slide :number',
         'auctions_title' => 'Online auctions',
-        'auctions_text' => 'Take part and acquire rare pieces.',
+        'auctions_text' => 'Follow our upcoming auctions and register your interest in rare pieces.',
         'auctions_cta' => 'Explore auctions',
         'finder_title' => 'Personal Finder',
         'finder_text' => 'We search for the piece you have in mind.',

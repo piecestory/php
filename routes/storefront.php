@@ -10,6 +10,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\MobileLoginController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Storefront\AuctionController;
 use App\Http\Controllers\Storefront\BlogController;
 use App\Http\Controllers\Storefront\CartController;
 use App\Http\Controllers\Storefront\CatalogController;
@@ -42,6 +43,11 @@ foreach (PageKey::cases() as $pageKey) {
 
 Route::get('/blog', [BlogController::class, 'index'])->name('blog');
 Route::get('/blog/{post}', [BlogController::class, 'show'])->name('blog.post');
+
+// Auction showcase: browse published auctions and register interest (no online bidding in v1).
+Route::get('/auctions', [AuctionController::class, 'index'])->name('auctions');
+Route::get('/auctions/{auction}', [AuctionController::class, 'show'])->name('auctions.show');
+Route::post('/auctions/{auction}/interest', [AuctionController::class, 'interest'])->middleware('throttle:auction-interest')->name('auctions.interest');
 
 // Customer requests to the team (no account needed): find a piece for me / sell my piece.
 Route::get('/personal-finder', [PersonalFinderController::class, 'show'])->name('personal-finder');
