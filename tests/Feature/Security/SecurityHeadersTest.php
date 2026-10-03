@@ -45,6 +45,20 @@ it('gives the staff panel its own policy, still limited to this site', function 
         ->not->toContain('ui-avatars.com');
 });
 
+it('repeats the policy inside every page, so a host that overwrites the header cannot remove it', function (): void {
+    $storefront = $this->get('/en/contact')->assertOk()->getContent();
+    $notFound = $this->get('/no-such-page-anywhere')->assertNotFound()->getContent();
+    $staff = $this->actingAs(User::factory()->create()->assignRole(Role::Admin->value))->get('/admin')->assertOk()->getContent();
+
+    $meta = '#<meta http-equiv="Content-Security-Policy" content="([^"]+)">#';
+    expect($storefront)->toMatch($meta)->and($notFound)->toMatch($meta)->and($staff)->toMatch($meta);
+
+    preg_match($meta, $storefront, $page);
+    preg_match($meta, $staff, $panel);
+    expect(html_entity_decode($page[1]))->toContain("script-src 'self';")->not->toContain('unsafe-eval')->not->toContain('frame-ancestors')
+        ->and(html_entity_decode($panel[1]))->toContain("'unsafe-eval'");
+});
+
 it('draws staff avatars locally instead of sending names to an outside service', function (): void {
     $staff = User::factory()->create(['name' => 'منى التميمي'])->assignRole(Role::Admin->value);
 

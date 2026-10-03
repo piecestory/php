@@ -6,6 +6,7 @@ namespace App\Providers\Filament;
 
 use App\Filament\Support\InitialsAvatar;
 use App\Http\Middleware\SetLocale;
+use App\Http\Support\ContentSecurityPolicy;
 use Filament\FontProviders\LocalFontProvider;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -61,6 +62,9 @@ class AdminPanelProvider extends PanelProvider
             ->favicon(asset('favicon.svg'))
             // The storefront bundles Livewire's CSP build itself (automatic injection is off), so the
             // panel adds Livewire's standard assets on its own pages only.
+            // Staff-panel CSP also in the page itself: the host may overwrite the header (see ContentSecurityPolicy).
+            ->renderHook(PanelsRenderHook::HEAD_START, fn (): string => '<meta http-equiv="Content-Security-Policy" content="'
+                .e(ContentSecurityPolicy::for(true, meta: true)).'">')
             ->renderHook(PanelsRenderHook::STYLES_AFTER, fn (): string => Blade::render('@livewireStyles'))
             ->renderHook(PanelsRenderHook::SCRIPTS_AFTER, fn (): string => Blade::render('@livewireScripts'))
             ->colors([

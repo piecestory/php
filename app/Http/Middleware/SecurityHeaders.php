@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
+use App\Http\Support\ContentSecurityPolicy;
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Vite;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -39,49 +39,14 @@ final class SecurityHeaders
         }
 
         if (! $headers->has('Content-Security-Policy')) {
-            $headers->set('Content-Security-Policy', $this->policy($this->isStaffPanel($request)));
+            $headers->set('Content-Security-Policy', ContentSecurityPolicy::for(self::isStaffPanel($request)));
         }
 
         return $response;
     }
 
-    private function isStaffPanel(Request $request): bool
+    public static function isStaffPanel(Request $request): bool
     {
         return $request->is('admin', 'admin/*') || str_starts_with($request->path(), 'livewire');
-    }
-
-    private function policy(bool $staffPanel): string
-    {
-        // Vite's dev server (npm run dev) serves scripts and styles from its own origin.
-        $dev = Vite::isRunningHot() ? ' '.$this->devServerOrigins() : '';
-
-        $directives = [
-            "default-src 'self'",
-            $staffPanel ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'{$dev}" : "script-src 'self'{$dev}",
-            "style-src 'self' 'unsafe-inline'{$dev}",
-            "img-src 'self' data: blob:",
-            "font-src 'self' data:",
-            "connect-src 'self'{$dev}",
-            "media-src 'self'",
-            "object-src 'none'",
-            "base-uri 'self'",
-            // Checkout redirects to the payment provider's page: browsers apply form-action to that redirect too.
-            trim("form-action 'self' ".implode(' ', (array) config('payments.checkout_origins'))),
-            "frame-ancestors 'none'",
-        ];
-
-        if (app()->isProduction()) {
-            $directives[] = 'upgrade-insecure-requests';
-        }
-
-        return implode('; ', $directives);
-    }
-
-    private function devServerOrigins(): string
-    {
-        $url = rtrim((string) file_get_contents(public_path('hot')));
-        $ws = preg_replace('#^http#', 'ws', $url);
-
-        return "{$url} {$ws}";
     }
 }

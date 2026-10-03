@@ -15,6 +15,8 @@
 <html lang="{{ $locale }}" dir="{{ Locales::isRtl($locale) ? 'rtl' : 'ltr' }}">
 <head>
     <meta charset="utf-8">
+    {{-- Also sent as a header; this copy survives hosts that overwrite the header (see ContentSecurityPolicy). --}}
+    <meta http-equiv="Content-Security-Policy" content="{{ \App\Http\Support\ContentSecurityPolicy::for(false, meta: true) }}">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#16110e">
     <title>{{ $pageTitle }}</title>
