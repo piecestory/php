@@ -182,6 +182,16 @@ Renditions are width-bound and never upscaled; `RecordImageDimensions` stores ea
 - `public/.htaccess`: no directory listings; dot-files (`.env`, `.git`) are never served.
 - Review results: `composer audit` and `npm audit` clean; raw SQL limited to constant expressions with bound values; `{!! !!}` only for icon files, encoded JSON-LD and the XML prolog; token and signature checks use `hash_equals`; every public form, lookup and sign-in is rate-limited; password reset answers the same whether or not the email exists; the SMS log driver redacts message bodies outside local development.
 
+### ADR-033 — Test layers
+- Pest (`composer check`): unit, feature and integration tests against the `piece_story_test` database. Every storefront route is referenced by a test; every staff screen opens with a real record (`AdminPagesRenderTest`) and the content quick-forms save and validate (`QuickFormsTest`). No PHP coverage driver is installed, so coverage is tracked per route/screen rather than per line.
+- Playwright (`npm run test:e2e`, dev dependency only; drives the installed Microsoft Edge, no browser download) against a running local site with the sample catalogue and sandbox payments:
+  - `shopping.spec.js`: search → wishlist → cart → checkout (pickup) → sandbox payment approved / declined → order page; Arabic RTL mobile menu.
+  - `admin.spec.js`: staff sign-in, order list → order, no CSP violations; customers are sent to the staff sign-in page. Credentials from `E2E_ADMIN_EMAIL`/`E2E_ADMIN_PASSWORD` or the git-ignored `.dev/qa-admin.txt`.
+  - `layout.spec.js`: 13 pages (incl. a product) × 9 widths (320–1920) × AR/EN — no horizontal overflow; the failure names the widest offending element.
+  - `accessibility.spec.js`: axe-core, WCAG 2.1 A/AA, 12 pages incl. a product × AR/EN; serious/critical findings fail.
+- The browser tests create real orders (named "E2E …") in the database they run against: run them only on local or staging data, never production.
+- Brand bronze was deepened from #9a6a36 to #8a5d2c after axe found 4.2:1 contrast for bronze text on ivory; it now meets 4.5:1 on every light surface and for white text on bronze buttons.
+
 ## Directory map
 
 ```

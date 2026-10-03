@@ -1,4 +1,5 @@
-{{-- Label + control slot + hint + validation error. Controls pass the same id so aria-describedby lines up. --}}
+{{-- Label + control slot + hint + validation error. Controls pass the same id so aria-describedby lines up.
+     Labels often reuse validation attribute names ("mobile number"), so the first letter is capitalised here. --}}
 @props([
     'id',
     'label',
@@ -9,7 +10,7 @@
 
 <div {{ $attributes->class(['space-y-1.5']) }}>
     <label for="{{ $id }}" class="flex items-baseline gap-1.5 text-sm font-medium text-ink">
-        {{ $label }}
+        {{ \Illuminate\Support\Str::ucfirst((string) $label) }}
         @if ($required)
             <span class="text-bronze" aria-hidden="true">*</span>
             <span class="sr-only">({{ __('ui.required') }})</span>

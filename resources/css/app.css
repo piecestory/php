@@ -28,7 +28,7 @@
     --color-ink-faint: #8a7f74; /* large text and decoration only: below AA for body copy */
 
     /* Brand */
-    --color-bronze: #9a6a36;
+    --color-bronze: #8a5d2c; /* ≥ 4.5:1 on ivory, paper and linen, and for white text on it (WCAG AA) */
     --color-bronze-deep: #7e5428;
     --color-gold: #c9a46a; /* ornaments and text on dark surfaces only */
     --color-gold-deep: #9a7338;

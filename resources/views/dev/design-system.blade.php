@@ -17,7 +17,7 @@
 
     $colors = [
         'ivory' => '#f7f2ea', 'paper' => '#fcfaf6', 'linen' => '#eee6da', 'line' => '#e3d9cb',
-        'ink' => '#1c1612', 'ink-soft' => '#5e544b', 'bronze' => '#9a6a36', 'bronze-deep' => '#7e5428',
+        'ink' => '#1c1612', 'ink-soft' => '#5e544b', 'bronze' => '#8a5d2c', 'bronze-deep' => '#7e5428',
         'gold' => '#c9a46a', 'night' => '#16110e',
     ];
 @endphp

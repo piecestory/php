@@ -72,7 +72,7 @@
                         <div x-show="isPickup">
                             <x-form.select name="pickup_branch" :label="__('checkout.pickup_branch')" :placeholder="__('checkout.choose_branch')"
                                 :options="$branches->mapWithKeys(fn ($b) => [$b->id => $b->translate('name')])->all()"
-                                :value="$branches->count() === 1 ? $branches->first()->id : null" />
+                                :value="$branches->count() === 1 ? $branches->first()->id : null" required />
                         </div>
                     @endif
 
