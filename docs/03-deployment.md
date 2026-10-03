@@ -14,12 +14,12 @@
 
 ## ب) تجهيز الخادم (مرة واحدة)
 
-1. hPanel → Advanced → PHP Configuration: PHP 8.4، وتفعيل `opcache` و`intl` و`gd` و`zip` و`exif` و`fileinfo`.
+1. hPanel → Websites → php.piecenstory.com → Advanced → PHP Configuration: **PHP 8.4** (الافتراضي 8.3 لا يكفي). على سطر الأوامر يُستخدم دائمًا `/opt/alt/php84/usr/bin/php` (الأمر `php` وحده هو 8.3).
 2. hPanel → Databases: إنشاء قاعدة ومستخدم بصلاحيات على هذه القاعدة فقط.
 3. hPanel → Emails: إنشاء `info@<domain>`؛ وتفعيل SPF وDKIM وDMARC من إعدادات النطاق (DNS).
 4. hPanel → Security → SSL: شهادة Let's Encrypt + إجبار HTTPS.
 5. hPanel → Advanced → SSH Access: تفعيل SSH وإضافة المفتاح العام للنشر.
-6. هيكل المجلدات تحت `~/domains/<domain>/`:
+6. هيكل المجلدات تحت `~/domains/<domain>/` (هنا: `~/domains/php.piecenstory.com/`):
    ```
    releases/        نسخ الموقع (آخر 3)
    shared/.env      من .env.production.example (chmod 600)
@@ -37,7 +37,7 @@
    الأسرار `SSH_HOST`، `SSH_PORT` (65002)، `SSH_USER`، `SSH_PRIVATE_KEY`، `DEPLOY_PATH`؛ والمتغير `APP_URL`.
 8. hPanel → Advanced → Cron Jobs، مهمة واحدة كل دقيقة:
    ```
-   cd ~/domains/<domain>/current && php artisan schedule:run >> /dev/null 2>&1
+   cd ~/domains/<domain>/current && /opt/alt/php84/usr/bin/php artisan schedule:run >> /dev/null 2>&1
    ```
    تشغّل: الطوابير (البريد والرسائل والصور)، إلغاء الحجوزات المنتهية، تذكير الحجوزات، تنظيف السلال، والنسخة الاحتياطية الليلية.
 
@@ -48,8 +48,8 @@
 2. على الخادم، مرة واحدة بعد أول نشر:
    ```bash
    cd ~/domains/<domain>/current
-   php artisan db:seed --force          # البيانات المرجعية فقط (التصنيفات، المعارض، الصفحات…) — آمن ولا يكرر
-   php artisan admin:create             # حساب المدير (كلمة المرور تُكتب في سطر مخفي)
+   /opt/alt/php84/usr/bin/php artisan db:seed --force          # البيانات المرجعية فقط (التصنيفات، المعارض، الصفحات…) — آمن ولا يكرر
+   /opt/alt/php84/usr/bin/php artisan admin:create             # حساب المدير (كلمة المرور تُكتب في سطر مخفي)
    ```
    لا تُشغَّل بيانات القطع التجريبية في الإنتاج (الأمر يرفض ذلك تلقائيًا).
 
@@ -69,7 +69,7 @@
 | المهمة | كيف |
 |---|---|
 | نشر تحديث | GitHub → Actions → Deploy → staging ثم production |
-| الرجوع لنسخة سابقة | `bash ~/domains/<domain>/current/deploy/rollback.sh ~/domains/<domain>` (ثوانٍ؛ الكود فقط) |
+| الرجوع لنسخة سابقة | `PHP_BIN=/opt/alt/php84/usr/bin/php bash ~/domains/<domain>/current/deploy/rollback.sh ~/domains/<domain>` (ثوانٍ؛ الكود فقط) |
 | النسخ الاحتياطي | تلقائي 04:30 يوميًا في `shared/storage/app/backups` لمدة 14 يومًا + نسخ Hostinger اليومية؛ عند الفشل يصل بريد تنبيه |
 | استعادة القاعدة | `gunzip -c <file>-database.sql.gz \| mysql -u <user> -p <database>` (بعد وضع الموقع في الصيانة) |
 | استعادة الصور | فك `<file>-files.zip`: `public/` → `shared/storage/app/public`، `private/` → `shared/storage/app/private` |

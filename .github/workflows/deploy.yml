@@ -6,7 +6,7 @@ name: Deploy
 #
 # Per GitHub environment ("staging", "production") these secrets are required:
 #   SSH_HOST, SSH_PORT (Hostinger: 65002), SSH_USER, SSH_PRIVATE_KEY, DEPLOY_PATH (e.g. /home/u123/domains/piecenstory.com)
-# and this variable: APP_URL (used for the health check after the switch).
+# and these variables: APP_URL (health check after the switch), PHP_BIN (Hostinger: /opt/alt/php84/usr/bin/php).
 
 on:
   workflow_dispatch:
@@ -47,30 +47,18 @@ jobs:
       - run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --no-progress
       - run: npm ci && npm run build
 
-      - name: Package the release
-        run: |
-          RELEASE="$(date -u +%Y%m%d%H%M%S)-${GITHUB_SHA::7}"
-          echo "RELEASE=$RELEASE" >> "$GITHUB_ENV"
-          tar --exclude=.git --exclude=node_modules --exclude=tests --exclude=.github --exclude=.dev \
-              --exclude='.env*' --exclude=storage --exclude=docs/qa --exclude=public/hot --exclude=public/storage \
-              -czf "/tmp/$RELEASE.tar.gz" .
-
       - name: Upload and switch
         env:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_PORT: ${{ secrets.SSH_PORT }}
           SSH_USER: ${{ secrets.SSH_USER }}
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          PHP_BIN: ${{ vars.PHP_BIN }}
         run: |
           install -m 700 -d ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key && chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -p "$SSH_PORT" "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null
-          SSH="ssh -i $HOME/.ssh/deploy_key -p $SSH_PORT $SSH_USER@$SSH_HOST"
-
-          $SSH "mkdir -p '$DEPLOY_PATH/releases/$RELEASE'"
-          scp -i ~/.ssh/deploy_key -P "$SSH_PORT" "/tmp/$RELEASE.tar.gz" "$SSH_USER@$SSH_HOST:$DEPLOY_PATH/releases/$RELEASE.tar.gz"
-          $SSH "cd '$DEPLOY_PATH/releases' && tar -xzf '$RELEASE.tar.gz' -C '$RELEASE' && rm '$RELEASE.tar.gz' \
-                && bash '$RELEASE/deploy/release.sh' '$DEPLOY_PATH' '$RELEASE'"
+          SSH_KEY=~/.ssh/deploy_key bash deploy/ship.sh "$SSH_USER@$SSH_HOST" "$SSH_PORT" "$DEPLOY_PATH" "${PHP_BIN:-php}"
 
       - name: Health check (rolls back if the site does not answer)
         env:
@@ -87,5 +75,5 @@ jobs:
             sleep 10
           done
           echo "Site did not answer: rolling back."
-          ssh -i ~/.ssh/deploy_key -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" "bash '$DEPLOY_PATH/current/deploy/rollback.sh' '$DEPLOY_PATH'"
+          ssh -i ~/.ssh/deploy_key -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" "PHP_BIN='${{ vars.PHP_BIN }}' bash '$DEPLOY_PATH/current/deploy/rollback.sh' '$DEPLOY_PATH'"
           exit 1
