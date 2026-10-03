@@ -138,6 +138,13 @@ Renditions are width-bound and never upscaled; `RecordImageDimensions` stores ea
 - Change log: catalogue, content and settings models use `RecordsChanges` (spatie/activitylog: only changed fillable fields, with the staff member as causer); stock is excluded because it has its own ledger. Read-only "سجل التعديلات" for system admins.
 - First admin on a server: `php artisan admin:create` (hidden password prompt; nothing in code or shell history).
 
+### ADR-028 — Content pages, journal and contact
+- Fixed pages (`PageKey`: about, services, shipping/returns/privacy/terms policies) have fixed URLs (`/about`, `/services`, `/policies/…`; `/en` prefix in English) and route names equal to their key. Staff edit text and publication only; they cannot add or remove pages. `slug_ar/en` mirror the key.
+- Bodies are Markdown rendered by `Support\Text\Markdown`: raw HTML escaped, unsafe links (`javascript:`, `data:`) dropped — staff content cannot inject scripts.
+- Menus show a page only once published and the journal only once it has a published article (`ContentAvailability`, cached 10 min, flushed when a page or article is saved/deleted). Navigation never links to a 404.
+- Starting content is seeded only from the owner's recorded decisions and never overwrites edited pages; privacy and terms are seeded as unpublished drafts for the owner's (legal) review.
+- Contact form: mobile or email required for a reply, honeypot field, 3 messages / 10 min per IP; messages land in the admin (customer-service permission) and are forwarded to the store mailbox with reply-to set to the visitor.
+
 ## Directory map
 
 ```

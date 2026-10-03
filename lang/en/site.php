@@ -25,6 +25,10 @@ return [
         'contact' => 'Contact',
         'faq' => 'FAQ',
         'track_order' => 'Track order',
+        'shipping_policy' => 'Shipping & pickup',
+        'returns_policy' => 'Returns & exchanges',
+        'privacy' => 'Privacy policy',
+        'terms' => 'Terms & conditions',
         'account' => 'My account',
         'login' => 'Sign in',
         'open_menu' => 'Open menu',
@@ -73,5 +77,8 @@ return [
         'intro' => 'Answers to what our customers ask us most.',
         'empty' => 'No questions have been published yet.',
         'more' => 'Didn’t find your answer?',
+    ],
+    'page' => [
+        'updated' => 'Last updated: :date',
     ],
 ];

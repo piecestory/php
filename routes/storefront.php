@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\Content\Enums\PageKey;
 use App\Http\Controllers\Account\AccountController;
 use App\Http\Controllers\Account\AddressController;
 use App\Http\Controllers\Account\ProfileController;
@@ -9,12 +10,15 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\MobileLoginController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Storefront\BlogController;
 use App\Http\Controllers\Storefront\CartController;
 use App\Http\Controllers\Storefront\CatalogController;
 use App\Http\Controllers\Storefront\CheckoutController;
+use App\Http\Controllers\Storefront\ContactController;
 use App\Http\Controllers\Storefront\FaqController;
 use App\Http\Controllers\Storefront\HomeController;
 use App\Http\Controllers\Storefront\OrderController;
+use App\Http\Controllers\Storefront\PageController;
 use App\Http\Controllers\Storefront\PaymentController;
 use App\Http\Controllers\Storefront\ProductController;
 use App\Http\Controllers\Storefront\TrackOrderController;
@@ -28,6 +32,17 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
 Route::get('/faq', FaqController::class)->name('faq');
+
+// Fixed content pages (about, services, policies), edited in the admin.
+foreach (PageKey::cases() as $pageKey) {
+    Route::get($pageKey->path(), PageController::class)->defaults('pageKey', $pageKey->value)->name($pageKey->value);
+}
+
+Route::get('/blog', [BlogController::class, 'index'])->name('blog');
+Route::get('/blog/{post}', [BlogController::class, 'show'])->name('blog.post');
+
+Route::get('/contact', [ContactController::class, 'show'])->name('contact');
+Route::post('/contact', [ContactController::class, 'store'])->middleware('throttle:contact')->name('contact.store');
 
 Route::controller(CatalogController::class)->group(function (): void {
     Route::get('/store', 'store')->name('store');

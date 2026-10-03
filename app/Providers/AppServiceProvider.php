@@ -9,8 +9,10 @@ use App\Domain\Auctions\Models\AuctionLot;
 use App\Domain\Catalog\Models\Category;
 use App\Domain\Catalog\Models\Collection;
 use App\Domain\Catalog\Models\Product;
+use App\Domain\Content\ContentAvailability;
 use App\Domain\Content\Models\Faq;
 use App\Domain\Content\Models\HeroSlide;
+use App\Domain\Content\Models\Page;
 use App\Domain\Content\Models\Post;
 use App\Domain\Identity\Models\User;
 use App\Domain\Notifications\Sms\LogSmsGateway;
@@ -45,6 +47,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(StoreSettings::class);
+        $this->app->scoped(ContentAvailability::class);
 
         // Per-request shopping state (reset between requests and tests).
         $this->app->scoped(CurrentCart::class);
@@ -88,6 +91,7 @@ class AppServiceProvider extends ServiceProvider
             'post' => Post::class,
             'hero_slide' => HeroSlide::class,
             'faq' => Faq::class,
+            'page' => Page::class,
             'branch' => Branch::class,
             'shipping_method' => ShippingMethod::class,
         ]);
@@ -123,6 +127,9 @@ class AppServiceProvider extends ServiceProvider
 
         // Cart and wishlist changes: generous for people, a ceiling for scripts.
         RateLimiter::for('shopping', fn (Request $request) => Limit::perMinute(60)->by($request->ip()));
+
+        // Contact form: a few messages per visitor every ten minutes is plenty for people, useless for spam.
+        RateLimiter::for('contact', fn (Request $request) => Limit::perMinutes(10, 3)->by($request->ip()));
 
         // Placing orders and starting payments.
         RateLimiter::for('checkout', fn (Request $request) => Limit::perMinute(10)->by($request->ip()));

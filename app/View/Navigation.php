@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\View;
 
+use App\Domain\Content\ContentAvailability;
+use App\Domain\Content\Enums\PageKey;
 use App\Support\Localization\LocalizedRoute;
 
 /**
@@ -36,6 +38,18 @@ final class Navigation
         return self::build(self::HELP);
     }
 
+    /** Content pages appear once published; the journal once it has a published article. */
+    public static function hasContent(string $route): bool
+    {
+        $content = app(ContentAvailability::class);
+
+        return match (true) {
+            PageKey::tryFrom($route) !== null => $content->hasPage($route),
+            $route === 'blog' => $content->hasBlog(),
+            default => true,
+        };
+    }
+
     /**
      * @param  list<string>  $routes
      * @return list<array{label: string, url: string, active: bool}>
@@ -46,7 +60,7 @@ final class Navigation
         $items = [];
 
         foreach ($routes as $route) {
-            if (! LocalizedRoute::has($route)) {
+            if (! LocalizedRoute::has($route) || ! self::hasContent($route)) {
                 continue;
             }
 

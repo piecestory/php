@@ -14,18 +14,18 @@ use Filament\Schemas\Components\Utilities\Set;
 final class Fields
 {
     /**
-     * name_ar / name_en and their slugs. A slug is suggested from the name while it is still empty;
+     * {field}_ar / {field}_en (name or title) and their slugs. A slug is suggested from the name while it is still empty;
      * once set, it is kept (changing a public URL breaks links and search results).
      *
      * @return list<TextInput>
      */
-    public static function bilingualName(bool $withSlugs = true): array
+    public static function bilingualName(bool $withSlugs = true, string $field = 'name'): array
     {
         $fields = [];
 
         foreach (['ar', 'en'] as $locale) {
-            $fields[] = TextInput::make("name_{$locale}")
-                ->label(__("admin.fields.name_{$locale}"))
+            $fields[] = TextInput::make("{$field}_{$locale}")
+                ->label(__("admin.fields.{$field}_{$locale}"))
                 ->required()->maxLength(190)
                 ->extraInputAttributes($locale === 'en' ? ['dir' => 'ltr'] : [])
                 ->live(onBlur: true)

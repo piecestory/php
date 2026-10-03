@@ -192,7 +192,12 @@
                     <span x-show="needsPayment" @if ($selectedType === OrderType::Reservation->value) x-cloak @endif>{{ __('checkout.submit.pay') }}</span>
                     <span x-show="reservesOnly" @if ($selectedType !== OrderType::Reservation->value) x-cloak @endif>{{ __('checkout.submit.reserve') }}</span>
                 </x-ui.button>
-                <p class="mt-4 text-xs leading-relaxed text-ink-soft">{{ __('checkout.returns_note') }}</p>
+                <p class="mt-4 text-xs leading-relaxed text-ink-soft">
+                    {{ __('checkout.returns_note') }}
+                    @if (\App\View\Navigation::hasContent('returns-policy'))
+                        <a href="{{ localized_route('returns-policy') }}" target="_blank" class="text-bronze underline">{{ __('site.nav.returns_policy') }}</a>
+                    @endif
+                </p>
             </aside>
         </form>
     </div>
