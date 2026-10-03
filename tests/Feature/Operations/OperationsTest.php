@@ -111,6 +111,16 @@ it('reports server errors to the team only on the live site, without stack trace
     });
 });
 
+it('never lets an alert hide the original error when the database is not ready', function (): void {
+    // As on a first deployment: settings and cache tables do not exist yet.
+    app()->bind(App\Domain\Settings\StoreSettings::class, fn () => throw new RuntimeException('Table settings does not exist'));
+    config(['cache.default' => 'missing-store']);
+
+    OpsAlert::forException(new RuntimeException('original problem'));
+
+    Mail::assertNothingSent();
+});
+
 it('never alerts about visitors\' mistakes such as missing pages', function (): void {
     app()->detectEnvironment(fn () => 'production');
 

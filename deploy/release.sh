@@ -27,7 +27,7 @@ ln -sfn "$BASE/shared/.env" .env
 rm -rf storage
 ln -sfn "$BASE/shared/storage" storage
 mkdir -p bootstrap/cache
-"$PHP" artisan storage:link --relative --force
+"$PHP" artisan storage:link --force
 
 # If anything below fails, the previous version stays live and leaves maintenance mode.
 trap 'echo "Release failed: the previous version stays live." >&2; [ -e "$BASE/current/artisan" ] && (cd "$BASE/current" && "$PHP" artisan up) || true' ERR

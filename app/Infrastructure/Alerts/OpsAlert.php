@@ -22,15 +22,16 @@ final class OpsAlert
 
     public static function send(string $subject, string $details): void
     {
-        $to = config('app.alert_email') ?: app(StoreSettings::class)->get('store.email');
-        if (! $to || ! Cache::add('ops-alert:'.hash('xxh3', $subject), true, self::THROTTLE_SECONDS)) {
-            return;
-        }
-
+        // Settings, cache or mail may be exactly what is broken (e.g. a database not migrated yet):
+        // the alert must never throw, or it would hide the original problem.
         try {
+            $to = config('app.alert_email') ?: app(StoreSettings::class)->get('store.email');
+            if (! $to || ! Cache::add('ops-alert:'.hash('xxh3', $subject), true, self::THROTTLE_SECONDS)) {
+                return;
+            }
+
             Mail::to($to)->send(new OpsAlertMail($subject, mb_substr($details, 0, 2000)));
         } catch (Throwable $e) {
-            // Mail itself may be what is broken: never let the alert hide the original problem.
             Log::warning('Ops alert could not be emailed', ['subject' => $subject, 'reason' => $e->getMessage()]);
         }
     }
