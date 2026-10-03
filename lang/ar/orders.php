@@ -81,8 +81,9 @@ return [
         'shipped' => [
             'subject' => 'شُحن طلبك :number',
             'heading' => 'طلبك في الطريق إليك',
-            'body' => 'سلّمنا طلبك لشركة الشحن. رقم الشحنة: :tracking. يمكنك متابعة حالته من صفحة الطلب.',
-            'sms' => 'قطعة وقصة: شُحن طلبك :number، رقم الشحنة :tracking. التفاصيل: :link',
+            'body' => 'سلّمنا طلبك لشركة الشحن.:tracking يمكنك متابعة حالته من صفحة الطلب.',
+            'sms' => 'قطعة وقصة: شُحن طلبك :number.:tracking التفاصيل: :link',
+            'tracking' => 'رقم الشحنة: :tracking_number.',
         ],
         'greeting' => 'مرحبًا :name،',
         'view_order' => 'عرض الطلب',

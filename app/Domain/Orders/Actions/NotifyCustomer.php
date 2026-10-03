@@ -41,6 +41,8 @@ final class NotifyCustomer
     public static function replacements(Order $order): array
     {
         $date = fn (?CarbonInterface $at) => $at?->locale($order->locale)->translatedFormat('j F') ?? '';
+        // Optional when shipping (own delivery has none): the sentence is left out rather than printed empty.
+        $trackingNumber = $order->shipments()->latest('id')->value('tracking_number');
 
         return [
             'number' => $order->number,
@@ -48,7 +50,9 @@ final class NotifyCustomer
             'until' => $date($order->reserved_until),
             'deadline' => $date($order->hold_expires_at),
             'link' => OrderLink::page($order),
-            'tracking' => (string) $order->shipments()->latest('id')->value('tracking_number'),
+            'tracking' => filled($trackingNumber)
+                ? ' '.__('orders.notice.shipped.tracking', ['tracking_number' => $trackingNumber], $order->locale)
+                : '',
         ];
     }
 }

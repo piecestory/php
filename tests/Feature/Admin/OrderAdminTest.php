@@ -111,6 +111,26 @@ it('ships delivery orders with a tracking number and tells the customer', functi
         ->and($order->shipments()->sole()->delivered_at)->not->toBeNull();
 });
 
+it('leaves the tracking sentence out when an order ships without a tracking number', function (): void {
+    App\Domain\Shipping\Models\ShippingMethod::query()->where('code', 'delivery')->update(['is_active' => true, 'rate' => 35]);
+    $order = placedOrder(OrderType::Reservation, form: [
+        'payment_method' => null,
+        'shipping_method' => App\Domain\Shipping\Models\ShippingMethod::query()->where('code', 'delivery')->value('id'),
+        'address' => ['city' => 'جدة', 'district' => 'الروضة', 'street' => 'شارع الأمير سلطان', 'building_number' => '2929', 'postal_code' => '23435'],
+    ]);
+    Livewire::test(ViewOrder::class, ['record' => $order->id])->callAction('recordPayment')->callAction('startPreparing');
+    $this->sms->sent = [];
+
+    Livewire::test(ViewOrder::class, ['record' => $order->id])
+        ->callAction('ship', ['carrier' => 'توصيل المتجر', 'tracking_number' => '', 'tracking_url' => ''])
+        ->assertHasNoActionErrors();
+
+    $sms = $this->sms->sent[0]['message'];
+    expect($sms)->not->toContain('رقم الشحنة')->not->toContain(': .')->not->toContain('..')
+        ->and((new OrderNoticeMail($order->refresh(), App\Domain\Orders\Enums\OrderNotice::Shipped))->render())
+        ->not->toContain('رقم الشحنة');
+});
+
 it('cancels a paid order: the piece returns to stock and the showroom payment awaits refund', function (): void {
     $order = placedOrder(OrderType::Reservation, form: ['payment_method' => null]);
     Livewire::test(ViewOrder::class, ['record' => $order->id])->callAction('recordPayment');

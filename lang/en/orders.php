@@ -81,8 +81,9 @@ return [
         'shipped' => [
             'subject' => 'Your order :number has shipped',
             'heading' => 'Your order is on its way',
-            'body' => 'We have handed your order to the courier. Tracking number: :tracking. You can follow it from your order page.',
-            'sms' => 'Piece & Story: order :number has shipped, tracking :tracking. Details: :link',
+            'body' => 'We have handed your order to the courier.:tracking You can follow it from your order page.',
+            'sms' => 'Piece & Story: order :number has shipped.:tracking Details: :link',
+            'tracking' => 'Tracking number: :tracking_number.',
         ],
         'greeting' => 'Hello :name,',
         'view_order' => 'View your order',
