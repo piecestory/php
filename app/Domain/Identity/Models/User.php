@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Identity\Models;
 
 use App\Domain\Identity\Enums\Permission;
+use App\Domain\Identity\Notifications\ResetPasswordLink;
 use App\Domain\Orders\Models\Order;
 use App\Domain\Wishlist\Models\WishlistItem;
 use Database\Factories\UserFactory;
@@ -17,6 +18,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use SensitiveParameter;
 use Spatie\Permission\Traits\HasRoles;
 
 #[Fillable(['name', 'email', 'phone', 'password', 'locale', 'is_active'])]
@@ -26,6 +28,12 @@ class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, HasRoles, Notifiable;
+
+    /** Queued, so a mail outage never turns "forgot password" into an error page. */
+    public function sendPasswordResetNotification(#[SensitiveParameter] $token): void
+    {
+        $this->notify(new ResetPasswordLink($token));
+    }
 
     /** Staff panel: active accounts holding the admin-access permission (customers never). */
     public function canAccessPanel(Panel $panel): bool

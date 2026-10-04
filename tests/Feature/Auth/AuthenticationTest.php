@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Identity\Models\User;
-use Illuminate\Auth\Notifications\ResetPassword;
+use App\Domain\Identity\Notifications\ResetPasswordLink;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Password;
 
@@ -95,7 +95,7 @@ it('answers the same way whether or not an email is registered', function (): vo
     $this->post('/forgot-password', ['email' => 'known@example.com'])->assertSessionHas('status', __('auth.reset_link_sent'));
     $this->post('/forgot-password', ['email' => 'unknown@example.com'])->assertSessionHas('status', __('auth.reset_link_sent'));
 
-    Notification::assertSentTimes(ResetPassword::class, 1);
+    Notification::assertSentTimes(ResetPasswordLink::class, 1);
 });
 
 it('sends reset links in the customer language', function (): void {
@@ -104,9 +104,22 @@ it('sends reset links in the customer language', function (): void {
 
     $this->post('/en/forgot-password', ['email' => 'en@example.com']);
 
-    Notification::assertSentTo($user, ResetPassword::class, function (ResetPassword $notification) use ($user): bool {
+    Notification::assertSentTo($user, ResetPasswordLink::class, function (ResetPasswordLink $notification) use ($user): bool {
         return str_contains($notification->toMail($user)->actionUrl, '/en/reset-password/');
     });
+});
+
+it('keeps "forgot password" working while the mail server refuses to send', function (): void {
+    // As on the live site with a wrong mailbox password: sending fails. The email waits in the queue
+    // (retried later), and the visitor still gets the normal answer instead of an error page.
+    config(['queue.default' => 'database', 'mail.default' => 'smtp', 'mail.mailers.smtp.host' => '127.0.0.1', 'mail.mailers.smtp.port' => 1]);
+    User::factory()->create(['email' => 'owner@example.com']);
+
+    $this->post('/forgot-password', ['email' => 'owner@example.com'])
+        ->assertRedirect()
+        ->assertSessionHas('status', __('auth.reset_link_sent'));
+
+    expect(Illuminate\Support\Facades\DB::table('jobs')->count())->toBe(1);
 });
 
 it('resets the password with a valid token', function (): void {
