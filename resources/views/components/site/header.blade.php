@@ -14,7 +14,9 @@
         : (auth()->guest() ? localized_route('login') : null);
 @endphp
 
-<header x-data="disclosure" x-on:keydown.escape.window="close" class="relative z-30 border-b border-line bg-paper/95 backdrop-blur-sm">
+{{-- No backdrop-filter / transform / filter on the header: they make it the containing block of the
+     fixed mobile menu below, which then opens squeezed into the header's 72px instead of the screen. --}}
+<header x-data="disclosure" x-on:keydown.escape.window="close" class="relative z-30 border-b border-line bg-paper">
     <div class="container-page flex h-[4.5rem] items-center gap-4 lg:h-24">
         {{-- Mobile: menu button --}}
         <button type="button" x-on:click="toggle" :aria-expanded="open" aria-controls="mobile-menu"

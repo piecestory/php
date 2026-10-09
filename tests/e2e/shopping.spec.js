@@ -80,6 +80,9 @@ test('the Arabic store works right to left on a phone', async ({ page }) => {
     await page.getByRole('button', { name: 'فتح القائمة' }).click();
     const menu = page.getByRole('dialog', { name: 'القائمة الرئيسية' });
     await expect(menu).toBeVisible();
+    // The panel must cover the screen, not be squeezed into the header (regression: header backdrop-filter).
+    const box = await menu.boundingBox();
+    expect(box?.height ?? 0).toBeGreaterThan(800);
     await menu.getByRole('link', { name: 'المتجر' }).click();
     await expect(page).toHaveURL(/\/store/);
     await expect(page.locator('h1')).toHaveText('المتجر');
