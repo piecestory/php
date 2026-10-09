@@ -100,7 +100,7 @@ it('confirms the order once the provider reports a successful payment', function
         ->and($order->statusChanges()->pluck('to_status')->all())->toBe(['confirmed', 'pending']);
 
     Mail::assertQueued(OrderNoticeMail::class, fn (OrderNoticeMail $mail) => $mail->hasTo('sara@example.com'));
-    Mail::assertQueued(StoreOrderAlertMail::class, fn (StoreOrderAlertMail $mail) => $mail->hasTo('info@piecenstory.com'));
+    Mail::assertQueued(StoreOrderAlertMail::class, fn (StoreOrderAlertMail $mail) => $mail->hasTo('info@php.piecenstory.com'));
     expect($this->sms->sent)->toHaveCount(1)
         ->and($this->sms->sent[0]['phone'])->toBe('+966551234567')
         ->and($this->sms->sent[0]['message'])->toContain($order->number);

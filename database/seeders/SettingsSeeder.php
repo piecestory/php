@@ -14,7 +14,7 @@ class SettingsSeeder extends Seeder
         // Mobile-code sign-in stays off until an SMS provider is configured.
         ['sms', 'enabled', '0'],
         // Public contact email (provided by the owner).
-        ['store', 'email', 'info@piecenstory.com'],
+        ['store', 'email', 'info@php.piecenstory.com'],
     ];
 
     public function run(): void

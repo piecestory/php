@@ -85,7 +85,7 @@ it('emails the team about a problem once, not once per occurrence', function ():
     OpsAlert::send('Server error: QueryException', 'gone away');
 
     Mail::assertSentCount(2);
-    Mail::assertSent(OpsAlertMail::class, fn (OpsAlertMail $mail) => $mail->hasTo('info@piecenstory.com') && $mail->alertSubject === 'Nightly backup failed');
+    Mail::assertSent(OpsAlertMail::class, fn (OpsAlertMail $mail) => $mail->hasTo('info@php.piecenstory.com') && $mail->alertSubject === 'Nightly backup failed');
 });
 
 it('sends alerts to the configured address when there is one', function (): void {

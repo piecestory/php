@@ -86,7 +86,7 @@ it('takes a Personal Finder request with private photos and a reference number',
 
     expect($this->sms->sent[0]['message'])->toContain($request->reference);
     Mail::assertQueued(RequestNoticeMail::class, fn (RequestNoticeMail $mail) => $mail->hasTo('hind@example.com'));
-    Mail::assertQueued(StoreRequestAlertMail::class, fn (StoreRequestAlertMail $mail) => $mail->hasTo('info@piecenstory.com'));
+    Mail::assertQueued(StoreRequestAlertMail::class, fn (StoreRequestAlertMail $mail) => $mail->hasTo('info@php.piecenstory.com'));
 
     $this->get('/personal-finder')->assertSee($request->reference);
 });
