@@ -93,7 +93,7 @@ it('delivers contact messages to the team and the store mailbox', function (): v
     expect($message->status)->toBe(ContactMessageStatus::New)
         ->and($message->phone)->toBe('+966551234567')
         ->and($message->email)->toBe('fahad@example.com');
-    Mail::assertQueued(ContactMessageMail::class, fn (ContactMessageMail $mail) => $mail->hasTo('info@piecenstory.com') && $mail->hasReplyTo('fahad@example.com'));
+    Mail::assertQueued(ContactMessageMail::class, fn (ContactMessageMail $mail) => $mail->hasTo('info@php.piecenstory.com') && $mail->hasReplyTo('fahad@example.com'));
 });
 
 it('validates the contact form and traps bots', function (array $input, string $field): void {

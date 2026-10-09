@@ -57,7 +57,7 @@ it('renders every customer message in Arabic and English with the private order 
         ->toContain('key='.str_repeat('t', 40))
         ->toContain($locale === 'ar' ? 'dir="rtl"' : 'dir="ltr"')
         ->toContain($locale === 'ar' ? 'مزهرية' : 'Vase')
-        ->toContain('info@piecenstory.com');
+        ->toContain('info@php.piecenstory.com');
 })->with(OrderNotice::cases())->with(['ar', 'en']);
 
 it('renders the store alert with the customer and pickup details', function (): void {

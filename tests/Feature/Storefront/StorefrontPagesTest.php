@@ -103,5 +103,5 @@ it('refreshes cached settings as soon as a setting changes', function (): void {
 it('shows the store contact email in the footer', function (): void {
     $this->seed(Database\Seeders\SettingsSeeder::class);
 
-    $this->get('/')->assertSee('href="mailto:info@piecenstory.com"', escape: false);
+    $this->get('/')->assertSee('href="mailto:info@php.piecenstory.com"', escape: false);
 });
