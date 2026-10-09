@@ -43,6 +43,11 @@ fi
 "$PHP" artisan db:seed --class=SettingsSeeder --force
 "$PHP" artisan optimize
 
+# The web root (public_html → current/public) becomes read-only: hPanel's Git deployment once copied the
+# whole repository over it and took the site down. The app never writes there at runtime (uploads live in
+# storage, reached through the public/storage link).
+chmod -R a-w "$DIR/public"
+
 # Atomic switch to the new version.
 ln -sfn "$DIR" "$BASE/current.next"
 mv -Tf "$BASE/current.next" "$BASE/current"
@@ -50,6 +55,6 @@ mv -Tf "$BASE/current.next" "$BASE/current"
 "$PHP" artisan up
 echo "Live: $RELEASE"
 
-# Keep the three newest releases for rollback.
+# Keep the three newest releases for rollback (write access restored first, so they can be removed).
 cd "$BASE/releases"
-ls -1dt -- */ | tail -n +4 | xargs -r rm -rf --
+ls -1dt -- */ | tail -n +4 | while read -r old; do chmod -R u+w -- "$old" && rm -rf -- "$old"; done
